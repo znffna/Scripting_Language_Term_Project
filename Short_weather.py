@@ -4,7 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
-#단기 예보 서비스
+#단기 예보 서비스 , 최근 3일 날씨 정보
 url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 params ={
     'serviceKey': '2pyqpMvhBE5SfkdQuutIa%2FP6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA%2BkgAg3ObxROFwxxyWhmMxQ%3D%3D',
@@ -52,6 +52,9 @@ category_names = {
     'UUU': '풍속 (동서성분, m/s)',
     'VVV': '풍속 (남북성분, m/s)',
     'VEC': '풍향 (deg)',
+    'TMP': '1 시간 기온 (℃)',
+    'PCP': '1 시간 강수량 (범주 (1 mm))'
+
 }
 
 def convert_code(category, value):
@@ -61,18 +64,9 @@ def convert_code(category, value):
         return {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기', '5': '빗방울', '6': '빗방울눈날림', '7': '눈날림'}.get(value, value)
     return value
 
-# GUI 생성
-def create_gui():
-    root = Tk()
-    root.geometry("400x600+750+200")
-    root.title("Weather Data")
-
+def create_weather_frame(frame):
     font_style = font.Font(size=12)
-
-    frame = Frame(root)
-    frame.pack(pady=20)
-
-    title_label = Label(frame, text="Weather Data", font=font.Font(size=14, weight='bold'))
+    title_label = Label(frame, text="날씨 데이터", font=font.Font(size=14, weight='bold'))
     title_label.pack(pady=10)
 
     for key in category_names:
@@ -82,9 +76,29 @@ def create_gui():
         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
         label.pack(anchor='w')
 
-    root.mainloop()
-
-if __name__ == "__main__":
-    create_gui()
+# def create_gui():
+#     root = Tk()
+#     root.geometry("400x600+750+200")
+#     root.title("Weather Data")
+#
+#     font_style = font.Font(size=12)
+#
+#     frame = Frame(root)
+#     frame.pack(pady=20)
+#
+#     title_label = Label(frame, text="Weather Data", font=font.Font(size=14, weight='bold'))
+#     title_label.pack(pady=10)
+#
+#     for key in category_names:
+#         category_name = category_names[key]
+#         value = weather_data.get(key, "데이터 없음")
+#         value = convert_code(key, value)
+#         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
+#         label.pack(anchor='w')
+#
+#     root.mainloop()
+#
+# if __name__ == "__main__":
+#     create_gui()
 
 

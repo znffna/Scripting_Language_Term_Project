@@ -6,7 +6,7 @@ import requests
 import json
 
 import MonthCalendar
-
+import Short_weather
 
 # MonthCalendar.year 로 년도를 읽을 수 있음
 # MonthCalendar.month 로 현재 선택된 달을 읽을 수 있음
@@ -63,8 +63,9 @@ class MainGUI:
 
         frame2 = Frame(세부정보)
         notebook.add(frame2, text='날씨 정보')
-        Label(frame2, text='페이지2의 내용',
-              fg='blue', font='helvetica 48').pack()
+        Short_weather.create_weather_frame(frame2)
+        # Label(frame2, text='페이지2의 내용',
+        #       fg='blue', font='helvetica 48').pack()
 
         frame3 = Frame(세부정보)
         notebook.add(frame3, text='경기장')
