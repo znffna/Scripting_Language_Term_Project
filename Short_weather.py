@@ -3,6 +3,9 @@ from tkinter import font
 import requests
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+from PIL import Image, ImageTk
+from io import BytesIO
+import urllib.request
 
 #단기 예보 서비스 , 최근 3일 날씨 정보
 url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
@@ -75,6 +78,16 @@ def create_weather_frame(frame):
         value = convert_code(key, value)
         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
         label.pack(anchor='w')
+
+    # 이미지 로드 및 표시
+    img_url = "https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/KBOHome/resources/images/schedule/bg_map.png"
+    with urllib.request.urlopen(img_url) as u:
+        raw_data = u.read()
+    im = Image.open(BytesIO(raw_data))
+    image = ImageTk.PhotoImage(im)
+    img_label = Label(frame, image=image, height=400, width=1000)
+    img_label.image = image  # 이미지가 가비지 컬렉션되지 않도록 참조 유지
+    img_label.pack(pady=10)
 
 # def create_gui():
 #     root = Tk()
