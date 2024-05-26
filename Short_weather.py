@@ -1,0 +1,136 @@
+from tkinter import *
+from tkinter import font
+import requests
+import xml.etree.ElementTree as ET
+import xml.dom.minidom
+from PIL import Image, ImageTk
+from io import BytesIO
+import urllib.request
+
+# 단기예보
+# - Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 (1일 8회)
+# - API 제공 시간(~이후) : 02:10, 05:10, 08:10, 11:10, 14:10, 17:10, 20:10, 23:10
+# - 하늘상태(SKY) 코드 : 맑음(1), 구름많음(3), 흐림(4)
+# - 강수형태(PTY) 코드 : (초단기) 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)
+#                       (단기) 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
+
+
+def fetch_weather(nx, ny):
+    url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+    params = {
+        'serviceKey': '2pyqpMvhBE5SfkdQuutIa%2FP6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA%2BkgAg3ObxROFwxxyWhmMxQ%3D%3D',
+        'pageNo': '1',
+        'numOfRows': '10',
+        'dataType': 'XML',
+        'base_date': '20240526',  # 발표 일자
+        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 호출)
+        'nx': str(nx),
+        'ny': str(ny)
+    }
+
+    response = requests.get(url, params=params)
+    data = response.content
+
+    xml_str = xml.dom.minidom.parseString(data)
+    pretty_xml = xml_str.toprettyxml()
+
+    # XML 데이터 파싱
+    root = ET.fromstring(data)
+    items = root.find('body').find('items').findall('item')
+
+    weather_data = {}
+    for item in items:
+        category = item.find('category').text
+        fcstValue = item.find('fcstValue').text
+        weather_data[category] = fcstValue
+
+    return weather_data
+
+
+def convert_code(category, value):
+    if category == 'SKY':
+        return {'1': '맑음', '3': '구름많음', '4': '흐림'}.get(value, value)
+    elif category == 'PTY':
+        return {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기', '5': '빗방울', '6': '빗방울눈날림', '7': '눈날림'}.get(value,
+                                                                                                                  value)
+    return value
+
+
+def display_weather(frame, weather_data):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    font_style = font.Font(size=12)
+    title_label = Label(frame, text="날씨 데이터", font=font.Font(size=14, weight='bold'))
+    title_label.pack(pady=10)
+
+    category_names = {
+        'POP': '강수확률 %',
+        'PTY': '강수형태 : ',  # 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
+        'REH': '습도 %',
+        'SKY': '하늘상태 : ',  # 맑음(1), 구름많음(3), 흐림(4)
+        'WSD': '풍속 (m/s)',
+        'UUU': '풍속 (동서성분, m/s)',
+        'VVV': '풍속 (남북성분, m/s)',
+        'VEC': '풍향 (deg)',
+        'TMP': '1 시간 기온 (℃)',
+        'PCP': '1 시간 강수량 (범주 (1 mm))'
+    }
+
+    for key in category_names:
+        category_name = category_names[key]
+        value = weather_data.get(key, "데이터 없음")
+        value = convert_code(key, value)
+        label = Label(frame, text=f"{category_name}: {value}", font=font_style)
+        label.pack(anchor='w')
+
+
+def create_weather_frame(frame):
+    # 좌측에 지도 이미지를 표시할 프레임
+    left_frame = Frame(frame, width=400, height=600)
+    left_frame.pack(side=LEFT, padx=20, pady=20)
+
+    img_url = "https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/KBOHome/resources/images/schedule/bg_map.png"
+    with urllib.request.urlopen(img_url) as u:
+        raw_data = u.read()
+    im = Image.open(BytesIO(raw_data))
+    image = ImageTk.PhotoImage(im)
+    img_label = Label(left_frame, image=image, height=400, width=400)
+    img_label.image = image  # 이미지가 가비지 컬렉션되지 않도록 참조 유지
+    img_label.pack()
+
+    # 우측에 경기장 리스트와 검색 버튼을 표시할 프레임
+    right_frame = Frame(frame, width=400, height=600)
+    right_frame.pack(side=LEFT, pady=10)
+
+    stadiums = [
+        {"name": "서울월드컵경기장", "nx": 60, "ny": 127},
+        {"name": "부산아시아드주경기장", "nx": 98, "ny": 76},
+        {"name": "인천문학경기장", "nx": 55, "ny": 124},
+        {"name": "대구스타디움", "nx": 89, "ny": 90},
+        {"name": "광주월드컵경기장", "nx": 58, "ny": 74},
+        {"name": "대전월드컵경기장", "nx": 67, "ny": 100},
+        {"name": "수원월드컵경기장", "nx": 61, "ny": 120},
+        {"name": "울산문수축구경기장", "nx": 102, "ny": 84},
+        {"name": "포항스틸야드", "nx": 102, "ny": 94},
+        {"name": "제주월드컵경기장", "nx": 53, "ny": 38}
+    ]
+
+    stadium_listbox = Listbox(right_frame, selectmode=SINGLE, height=20)
+    for stadium in stadiums:
+        stadium_listbox.insert(END, stadium["name"])
+    stadium_listbox.pack(side=LEFT,pady=10)
+
+    def show_weather():
+        selected_index = stadium_listbox.curselection()
+        if selected_index:
+            selected_stadium = stadiums[selected_index[0]]
+            nx = selected_stadium["nx"]
+            ny = selected_stadium["ny"]
+            weather_data = fetch_weather(nx, ny)
+            display_weather(weather_info_frame, weather_data)
+
+    search_button = Button(right_frame, text="검색", command=show_weather)
+    search_button.pack(side=LEFT, pady=10)
+    weather_info_frame = Frame(right_frame, width=400, height=400)
+    weather_info_frame.pack(side=LEFT, pady=10)
