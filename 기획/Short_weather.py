@@ -45,14 +45,21 @@ for item in items:
 # Category 별 이름 맵핑
 category_names = {
     'POP': '강수확률 %',
-    'PTY': '강수형태 (코드값): 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)',
+    'PTY': '강수형태 : ', # 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
     'REH': '습도 %',
-    'SKY': '하늘상태 (코드값): 맑음(1), 구름많음(3), 흐림(4)',
+    'SKY': '하늘상태 : ', #맑음(1), 구름많음(3), 흐림(4)
     'WSD': '풍속 (m/s)',
     'UUU': '풍속 (동서성분, m/s)',
     'VVV': '풍속 (남북성분, m/s)',
     'VEC': '풍향 (deg)',
 }
+
+def convert_code(category, value):
+    if category == 'SKY':
+        return {'1': '맑음', '3': '구름많음', '4': '흐림'}.get(value, value)
+    elif category == 'PTY':
+        return {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기', '5': '빗방울', '6': '빗방울눈날림', '7': '눈날림'}.get(value, value)
+    return value
 
 # GUI 생성
 def create_gui():
@@ -71,6 +78,7 @@ def create_gui():
     for key in category_names:
         category_name = category_names[key]
         value = weather_data.get(key, "데이터 없음")
+        value = convert_code(key, value)
         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
         label.pack(anchor='w')
 
