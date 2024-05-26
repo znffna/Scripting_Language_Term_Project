@@ -10,6 +10,7 @@ import MonthCalendar
 
 # MonthCalendar.year 로 년도를 읽을 수 있음
 # MonthCalendar.month 로 현재 선택된 달을 읽을 수 있음
+# MonthCalendar.day 로 현재 선택된 달을 읽을 수 있음
 
 width = 1280
 height = 720
@@ -19,38 +20,37 @@ y_position = 20
 
 
 class MainGUI:
+    def createCalendar(self, mainframe):
+        Calendar_frame = Frame(mainframe)
+        Calendar_frame.pack(side=LEFT)
+        # 실제 경기 내용이 저장되는 공간
+        self.month_match = {}  # {day : [한 경기], [한 경기], day : [한 경기], ..., ...}
+
+        # 달력을 출력하기 위한 프레임
+        self.달력프레임 = Frame(Calendar_frame)
+        self.달력프레임.pack(side=TOP)
+        self.MonthCalendar = MonthCalendar.MonthCalendar(self, self.달력프레임, self.month_match)
+
+        # 달력 제어 컨트롤 객체
+        cFrame2 = Frame(Calendar_frame)
+        cFrame2.pack(side=TOP)
+        self.MonthController = MonthCalendar.MonthController(cFrame2, self.MonthCalendar)
+
+        pass
 
     def __init__(self):
+        # 오늘의 년/월 을 할당하는 변수
+        now = datetime.now()
+        MonthCalendar.year = now.year
+        MonthCalendar.month = now.month
+        MonthCalendar.day = now.day
 
+        # 윈도우 생성
         window = Tk()
         window.title('국내 축구 경기 일정')
 
         # 달력 생성
-        Calendar_frame = Frame(window)
-        Calendar_frame.pack(side=LEFT)
-
-        # 실제 경기 내용이 저장되는 공간
-        self.month_match = {}  # {day : [한 경기], [한 경기], day : [한 경기], ..., ...}
-        
-        # 달력을 출력하기 위한 프레임
-        self.달력프레임 = Frame(Calendar_frame)
-        self.달력프레임.pack(side=TOP)
-
-        # 달력의 일을 선택하기 위한 버튼
-        self.CalendarButton = []
-
-        # 오늘의 년/월 을 할당하는 변수
-        now = datetime.now()
-
-        global year, month
-        year = now.year
-        month = now.month
-
-        self.MonthCalendar = MonthCalendar.MonthCalendar(self.달력프레임, self.month_match)
-
-        cFrame2 = Frame(Calendar_frame)
-        cFrame2.pack(side=TOP)
-        self.MonthController = MonthCalendar.MonthController(cFrame2, self.MonthCalendar)
+        self.createCalendar(window)
 
         # Notebook 생성
         세부정보 = Frame(window)
@@ -76,6 +76,11 @@ class MainGUI:
         Label(frame4, text='페이지4의 내용',
               fg='yellow', font='helvetica 48').pack()
         window.mainloop()
+
+    def refresh(self):
+        print(MonthCalendar.day, '일 선택됨')
+
+
 
 
 if __name__ == '__main__':

@@ -1,13 +1,14 @@
 from tkinter import Button, Label, LEFT
 import calendar
 
-
-
 import requests
 import json
 
+
+
 year = 2024
 month = 5
+day = 26
 
 x_position = 20
 y_position = 20
@@ -16,7 +17,7 @@ y_position = 20
 class MonthCalendar:
 
     def readMonthData(self):
-        print('MonthCalendar 의 readMonthData - ', year, '년 ',  month, '월')
+        # print('MonthCalendar 의 readMonthData - ', year, '년 ',  month, '월')
         month_data = {  # 'MIME Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'leId': 1,
             'srIdList': '0,9,6',
@@ -26,7 +27,7 @@ class MonthCalendar:
         }
         res = requests.post('https://www.koreabaseball.com/ws/Schedule.asmx/GetScheduleList', data=month_data)
         res.encoding = 'utf-8'
-        print(res.status_code)
+        # print(res.status_code)
         # print(res.json())
         # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
         # print(pretty_json)
@@ -82,14 +83,14 @@ class MonthCalendar:
     def setCalendar(self):
         weekdays = ('일', '월', '화', '수', '목', '금', '토')
         calendar.setfirstweekday(calendar.SUNDAY)
-        cal = calendar.monthcalendar(year, month)
+        self.cal = calendar.monthcalendar(year, month)
 
         for week in self.CalendarButton:
             for day in self.CalendarButton:
-                for label in day:
-                    label.grid_remove()
+                for button in day:
+                    button.grid_remove()
 
-        for week_num, week in enumerate(cal):
+        for week_num, week in enumerate(self.cal):
             for day_num, day in enumerate(week):
                 # x_position = 20 * day_num
                 if day != 0:
@@ -120,14 +121,23 @@ class MonthCalendar:
         self.readMonthData()
         self.setCalendar()
 
-    def __init__(self, frame, month_match):
+    def pressDay(self, row, col):
+        # print('button pressed', row, col)
+        # print('day = ', self.cal[row][col])
+        global day
+        day = self.cal[row][col]
+        self.GUI.refresh()
+
+    def __init__(self, main, frame, month_match):
+        self.GUI = main
         self.frame = frame
         self.month_match = month_match
         self.CalendarButton = []
         for week_num in range(6):
             self.CalendarButton.append([])
             for day_num in range(7):
-                btn = Button(self.frame, text='', width=6, height=2)
+                btn = Button(self.frame, text='', width=6, height=2,
+                             command= lambda row=week_num, col=day_num: self.pressDay(row, col))
                 btn.grid(row=week_num, column=day_num, padx=(x_position, 0), pady=(y_position, 0))
                 btn.grid_remove()
                 self.CalendarButton[week_num].append(btn)
@@ -188,8 +198,8 @@ class MonthController:
         self.MonthCalendar.month = value
         self.update()
 
-    def __init__(self, frame, calendar):
-        self.MonthCalendar = calendar
+    def __init__(self,  frame, monthcalendar):
+        self.MonthCalendar = monthcalendar
 
         Button(frame, text='◀◀', command=self.decreaseYear).pack(side=LEFT)
         Button(frame, text='◀', command=self.decreaseMonth).pack(side=LEFT)
