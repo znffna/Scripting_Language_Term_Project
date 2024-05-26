@@ -303,9 +303,11 @@ class MainGUI:
         MonthCalendar.month = now.month
         MonthCalendar.day = now.day
 
+
         # 윈도우 생성
         window = Tk()
         window.title('국내 축구 경기 일정')
+        window.configure(bg='lightblue')
 
         # 폰트 생성
         self.fontstyle = font.Font(window, size=24, weight='bold', family='Consolas')
@@ -313,6 +315,10 @@ class MainGUI:
 
         # 달력 생성
         self.createCalendar(window)
+
+        # 구분선 추가
+        separator_frame = Frame(window, width=5, bg='black')  # 너비(width)와 배경색(bg) 설정
+        separator_frame.pack(side=LEFT, fill='y', padx=(10, 0) )
 
         # Notebook 생성
         세부정보 = Frame(window)
