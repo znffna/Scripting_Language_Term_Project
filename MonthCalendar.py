@@ -126,7 +126,7 @@ class MonthCalendar:
         # print('day = ', self.cal[row][col])
         global day
         day = self.cal[row][col]
-        self.GUI.refresh()
+        self.GUI.pressDay()
 
     def __init__(self, main, frame, month_match):
         self.GUI = main
