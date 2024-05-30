@@ -1,4 +1,4 @@
-from tkinter import Button, Label, LEFT
+from tkinter import Button, Label, LEFT, Frame, TOP
 import calendar
 
 import requests
@@ -128,20 +128,26 @@ class MonthCalendar:
         day = self.cal[row][col]
         self.GUI.pressDay()
 
-    def __init__(self, main, frame, month_match):
+    def __init__(self, main, frame):
+        달력프레임 = Frame(frame)
+        달력프레임.pack(side=TOP)
+
         self.GUI = main
-        self.frame = frame
-        self.month_match = month_match
+        self.frame = 달력프레임
+        self.month_match = {}
         self.CalendarButton = []
         for week_num in range(6):
             self.CalendarButton.append([])
             for day_num in range(7):
                 btn = Button(self.frame, text='', width=6, height=2,
-                             command= lambda row=week_num, col=day_num: self.pressDay(row, col))
+                             command=lambda row=week_num, col=day_num: self.pressDay(row, col))
                 btn.grid(row=week_num, column=day_num, padx=(x_position, 0), pady=(y_position, 0))
                 btn.grid_remove()
                 self.CalendarButton[week_num].append(btn)
-
+                
+        # 컨트롤러를 추가
+        self.controller = MonthController(self, frame)
+        
         self.readMonthData()
         self.setCalendar()
 
@@ -198,13 +204,15 @@ class MonthController:
         self.MonthCalendar.month = value
         self.update()
 
-    def __init__(self,  frame, monthcalendar):
+    def __init__(self, monthcalendar, frame):
         self.MonthCalendar = monthcalendar
+        컨트롤러프레임 = Frame(frame)
+        컨트롤러프레임.pack(side=TOP)
 
-        Button(frame, text='◀◀', command=self.decreaseYear).pack(side=LEFT)
-        Button(frame, text='◀', command=self.decreaseMonth).pack(side=LEFT)
-        self.selectedYM = Label(frame, text=str(year) + "년 " + str(month) + "월")
+        Button(컨트롤러프레임, text='◀◀', command=self.decreaseYear).pack(side=LEFT)
+        Button(컨트롤러프레임, text='◀', command=self.decreaseMonth).pack(side=LEFT)
+        self.selectedYM = Label(컨트롤러프레임, text=str(year) + "년 " + str(month) + "월")
         self.selectedYM.pack(side=LEFT)
-        Button(frame, text='▶', command=self.increaseMonth).pack(side=LEFT)
-        Button(frame, text='▶▶', command=self.increaseYear).pack(side=LEFT)
+        Button(컨트롤러프레임, text='▶', command=self.increaseMonth).pack(side=LEFT)
+        Button(컨트롤러프레임, text='▶▶', command=self.increaseYear).pack(side=LEFT)
 

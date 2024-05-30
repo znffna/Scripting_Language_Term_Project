@@ -41,22 +41,14 @@ class MainGUI:
     def createCalendar(self, mainframe):
         Calendar_frame = Frame(mainframe)
         Calendar_frame.pack(side=LEFT)
-        # 실제 경기 내용이 저장되는 공간
-        self.month_match = {}  # {day : [한 경기], [한 경기], day : [한 경기], ..., ...}
 
         # 달력을 출력하기 위한 프레임
-        self.달력프레임 = Frame(Calendar_frame)
-        self.달력프레임.pack(side=TOP)
-        self.MonthCalendar = MonthCalendar.MonthCalendar(self, self.달력프레임, self.month_match)
+        self.MonthCalendar = MonthCalendar.MonthCalendar(self, Calendar_frame)
 
-        # 달력 제어 컨트롤 객체
-        cFrame2 = Frame(Calendar_frame)
-        cFrame2.pack(side=TOP)
-        self.MonthController = MonthCalendar.MonthController(cFrame2, self.MonthCalendar)
 
     def __init__(self):
 
-        # 오늘의 년/월 을 할당하는 변수
+        # 오늘의 날짜를 불러옴
         now = datetime.now()
         MonthCalendar.year = now.year
         MonthCalendar.month = now.month
