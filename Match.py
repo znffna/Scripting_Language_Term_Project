@@ -44,8 +44,8 @@ class Match:
             return
 
         # print(res.status_code)
-        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        # print(pretty_json)
+        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        print(pretty_json)
 
         self.match_listbox.delete(0, END)
 
@@ -205,6 +205,11 @@ class Match:
 
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
         self.LVersus.pack(side=LEFT)
+
+        
+        self.readScoreBoard()
+        self.readBoxScore()
+
         pass
 
     def __init__(self, frame):
@@ -214,3 +219,48 @@ class Match:
 
         self.createMatchList(frame)
         self.createMatchInform(frame)
+
+    def readScoreBoard(self):
+        scoreboardURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll'
+        scoreboardData = {
+            'leId': 1,
+            'srId': 0,
+            'seasonId': 2024,
+            'gameId': '20240529LGSK0'
+        }
+        self.scoreboard = []
+
+        res = requests.post(scoreboardURL, data=scoreboardData)
+        res.encoding = 'utf-8'
+
+        if 200 != res.status_code:
+            print('읽어 오기 실패! -', res.status_code)
+            return
+
+        # print(res.status_code)
+        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        print(pretty_json)
+
+
+    def readBoxScore(self):
+        boxscoreURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetBoxScoreScroll'
+        boxscoreData = {
+            'leId': 1,
+            'srId': 0,
+            'seasonId': 2024,
+            'gameId': '20240529LGSK0'
+        }
+        self.boxscore = []
+
+        res = requests.post(boxscoreURL, data=boxscoreData)
+        res.encoding = 'utf-8'
+
+        if 200 != res.status_code:
+            print('읽어 오기 실패! -', res.status_code)
+            return
+
+        # print(res.status_code)
+        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        print(pretty_json)
+
+
