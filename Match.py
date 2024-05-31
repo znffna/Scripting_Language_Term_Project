@@ -44,8 +44,8 @@ class Match:
             return
 
         # print(res.status_code)
-        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        print(pretty_json)
+        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # print(pretty_json)
 
         self.match_listbox.delete(0, END)
 
@@ -137,6 +137,9 @@ class Match:
         self.LVersus.configure(text="   " + str(selectgame['T_SCORE_CN'] + "  VS  " + str(selectgame['B_SCORE_CN'])
                                                 + "   "))
 
+        self.readScoreBoard(selectgame)
+        self.readBoxScore(selectgame)
+
     # 하루치 경기 리스트를 출력할 frame 생성
     def createMatchList(self, frame):
         list_frame = Frame(frame)
@@ -206,9 +209,6 @@ class Match:
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
         self.LVersus.pack(side=LEFT)
 
-        
-        self.readScoreBoard()
-        self.readBoxScore()
 
         pass
 
@@ -220,13 +220,13 @@ class Match:
         self.createMatchList(frame)
         self.createMatchInform(frame)
 
-    def readScoreBoard(self):
+    def readScoreBoard(self, selectgame):
         scoreboardURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll'
         scoreboardData = {
             'leId': 1,
             'srId': 0,
-            'seasonId': 2024,
-            'gameId': '20240529LGSK0'
+            'seasonId': selectgame['SEASON_ID'],
+            'gameId': selectgame['G_ID']
         }
         self.scoreboard = []
 
@@ -238,17 +238,101 @@ class Match:
             return
 
         # print(res.status_code)
-        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # print(pretty_json)
+
+        table1 = res.json()['table1'].replace('\r\n', '')
+        table2 = res.json()['table2'].replace('\r\n', '')
+        table3 = res.json()['table3'].replace('\r\n', '')
+
+        dict1 = json.loads(table1)
+        dict2 = json.loads(table2)
+        dict3 = json.loads(table3)
+
+        # 1. LE_ID                      X
+        # 2. SR_ID                      X
+        # 3. SEASON_ID (시즌 년도)        X
+        # 4. G_DT (날짜)                 X
+        # 5. G_DT_TXT (날짜를 풀어서)      X
+        # 6. G_ID (경기 ID)              X
+        # 7. HEADER_NO                  X
+        # 8. G_TM (경기 시작시간)         O
+        # 9. S_NM (경기장 위치)          O
+        # 10. AWAY_ID (어웨이 팀 ID)       X
+        # 11. HOME_ID (홈 팀 ID)          X
+        # 12. AWAY_NM (어웨이 팀 이름)    -----------O
+        # 13. HOME_NM (홈 팀 이름)      ------------O
+        # T_PIT_P_ID (어웨이 팀 투수)
+        # T_PIT_P_NM (어웨이 팀 투수 이름)
+        # B_PIT_P_ID (홈 팀 투수 이름)
+        # B_PIT_P_NM (홈 팀 투수 이름)
+        # GAME_STATE_SC (게임 상태)
+        # GAME_INN_NO (게임 진행 상황 - 몇 회인가(5))         O
+        # GAME_TB_SC (게임 진행 상황 이름 - 초(T)/말(B))
+        # GAME_TB_SC_NM (게임 진행 상황 이름 - 초/말 (말))     O
+        # T_SCORE_CN (어웨이팀 점수)     --------------- O
+        # B_SCORE_CN (홈팀 점수)        --------------- O
+
+        # print(dict1)
+        # print(dict3)
+        # print(dict2)
+        pretty_json = json.dumps(dict2, indent=4, ensure_ascii=False)
         print(pretty_json)
 
+        away_score1 = []
+        home_score1 = []
+        away_score1.append(selectgame['G_DT'])  # 경기 일자
+        away_score1.append(selectgame['SEASON_ID'])  # 시즌
 
-    def readBoxScore(self):
+        away_score1.append(selectgame['AWAY_NM'])  # 원정팀 이름
+        a = dict1['rows'][0]['row'][1]['Text'].split('>')[3]
+        away_score1.append(a)  # 원정팀 현재 기록
+        b = dict1['rows'][0]['row'][0]['Text']
+        away_score1.append(b)  # 원정팀 해당경기 승/패
+
+        home_score1.append(selectgame['G_DT'])
+        home_score1.append(selectgame['SEASON_ID'])
+        home_score1.append(selectgame['HOME_NM'])  # 홈팀 이름
+
+        a = dict1['rows'][1]['row'][1]['Text'].split('>')[3]
+        home_score1.append(a)  # 홈팀 현재 기록
+        b = dict1['rows'][1]['row'][0]['Text']
+        home_score1.append(b)  # 홈팀 해당경기 승/패
+
+        away_score2 = []
+        home_score2 = []
+
+        for i in range(0, 12):
+            a = dict2['rows'][0]['row'][i]['Text']
+            away_score2.append(a)
+            b = dict2['rows'][1]['row'][i]['Text']
+            home_score2.append(b)
+
+        away_score3 = []
+        home_score3 = []
+        for i in range(0, 4):  # 스코어, 안타수, 에러수, 볼넷 수 반복문
+            a = dict3['rows'][0]['row'][i]['Text']
+            away_score3.append(a)
+            b = dict3['rows'][1]['row'][i]['Text']
+            home_score3.append(b)
+        print(away_score1, '\n', away_score2, '\n', away_score3)
+        print(home_score1, '\n', home_score2, '\n', home_score3)
+
+        # score_board1 = pd.DataFrame([away_score1, home_score1], columns=['Date', 'Season', 'Team', 'Result', 'Record'])
+        # score_board3 = pd.DataFrame([away_score3, home_score3], columns=['Score', 'Hit', 'Error', 'Base_on_balls'])
+        # score_board = pd.concat([score_board1, score_board3], axis=1)  # 두 테이블에서 가져온 정보 합치기
+        # score_board
+
+
+
+
+    def readBoxScore(self, selectgame):
         boxscoreURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetBoxScoreScroll'
         boxscoreData = {
             'leId': 1,
             'srId': 0,
-            'seasonId': 2024,
-            'gameId': '20240529LGSK0'
+            'seasonId': selectgame['SEASON_ID'],
+            'gameId': selectgame['G_ID']
         }
         self.boxscore = []
 
@@ -260,7 +344,14 @@ class Match:
             return
 
         # print(res.status_code)
-        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        print(pretty_json)
+        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # print(pretty_json)
+
+        table1 = res.json()['tableEtc'].replace('\r\n', '')
+        dict1 = json.loads(table1)
+        # pretty_json = json.dumps(dict1, indent=4, ensure_ascii=False)
+        # print(pretty_json)
+
+
 
 
