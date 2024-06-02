@@ -22,7 +22,7 @@ def fetch_weather(nx, ny):
         'pageNo': '1',
         'numOfRows': '10',
         'dataType': 'XML',
-        'base_date': '20240529',  # 발표 일자
+        'base_date': '20240602',  # 발표 일자
         'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 s호출)
         'nx': str(nx),
         'ny': str(ny)
