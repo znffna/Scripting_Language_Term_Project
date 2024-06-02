@@ -6,6 +6,8 @@ import io
 from PIL import Image, ImageTk
 from googlemaps import Client
 
+from GoogleAPI_Key import Google_API_Key
+
 zoom = 13
 
 # 경기장 데이터
@@ -25,8 +27,6 @@ stadiums = [
 ]
 # Google Maps API 클라이언트 생성 (한달에 $20 까지 무료)
 # https://console.cloud.google.com/apis/credentials
-Google_API_Key = '*******'
-# Google_API_Key = '*******'
 gmaps = Client(key=Google_API_Key)
 
 # 경기장 좌표 가져오기
