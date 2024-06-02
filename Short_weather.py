@@ -18,12 +18,12 @@ import urllib.request
 def fetch_weather(nx, ny):
     url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
     params = {
-        'serviceKey': '2pyqpMvhBE5SfkdQuutIa%2FP6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA%2BkgAg3ObxROFwxxyWhmMxQ%3D%3D',
+        'serviceKey': '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ==', #decoding
         'pageNo': '1',
         'numOfRows': '10',
         'dataType': 'XML',
-        'base_date': '20240526',  # 발표 일자
-        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 호출)
+        'base_date': '20240529',  # 발표 일자
+        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 s호출)
         'nx': str(nx),
         'ny': str(ny)
     }
@@ -33,6 +33,8 @@ def fetch_weather(nx, ny):
 
     xml_str = xml.dom.minidom.parseString(data)
     pretty_xml = xml_str.toprettyxml()
+
+    # print(pretty_xml)
 
     # XML 데이터 파싱
     root = ET.fromstring(data)
