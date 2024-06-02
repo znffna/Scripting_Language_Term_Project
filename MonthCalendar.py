@@ -129,11 +129,10 @@ class MonthCalendar:
         self.GUI.pressDay()
 
     def __init__(self, main, frame):
-        달력프레임 = Frame(frame)
-        달력프레임.pack(side=TOP)
+        self.frame = Frame(frame)
+        self.frame.pack(side=TOP)
 
         self.GUI = main
-        self.frame = 달력프레임
         self.month_match = {}
         self.CalendarButton = []
         for week_num in range(6):
