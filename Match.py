@@ -134,8 +134,22 @@ class Match:
 
         # T_SCORE_CN (어웨이팀 점수)     --------------- O
         # B_SCORE_CN (홈팀 점수)        --------------- O
-        self.LVersus.configure(text="   " + str(selectgame['T_SCORE_CN'] + "  VS  " + str(selectgame['B_SCORE_CN'])
-                                                + "   "))
+        away_win = selectgame['T_SCORE_CN'] == selectgame['B_SCORE_CN']
+        # 점수를 갱신
+        self.LAwayScore.configure(text=str(selectgame['T_SCORE_CN']))
+        self.LHomeScore.configure(text=str(selectgame['B_SCORE_CN']))
+        # 승패에 따른 점수 색상 갱신
+        if away_win:
+            self.LAwayScore.configure(fg='black')
+            self.LHomeScore.configure(fg='black')
+        elif selectgame['T_SCORE_CN'] > selectgame['B_SCORE_CN']:
+            self.LAwayScore.configure(fg='red')
+            self.LHomeScore.configure(fg='blue')
+        else:
+            self.LAwayScore.configure(fg='blue')
+            self.LHomeScore.configure(fg='red')
+
+        self.LVersus.configure(text="     VS     ")
 
         self.readScoreBoard(selectgame)
         self.readBoxScore(selectgame)
@@ -149,7 +163,7 @@ class Match:
         listbox_frame.pack(side=TOP)
 
         # 경기 목록 리스트 박스 생성
-        self.match_listbox = Listbox(listbox_frame, width=60)
+        self.match_listbox = Listbox(listbox_frame, width=60, height=20)
         self.match_listbox.pack(side=LEFT)
 
         # 스크롤 바 생성
@@ -171,54 +185,82 @@ class Match:
     # 선택된 경기를 출력하는 frame 생성
     def createMatchInform(self, frame):
         inform_main = Frame(frame)
-        inform_main.pack(side=LEFT)
+        inform_main.pack(side=LEFT, expand=True, fill=BOTH)
 
         data = str(MonthCalendar.year) + '년 ' + str(MonthCalendar.month) + '월 ' + str(MonthCalendar.day) + '일'
         self.LMatchDate = Label(inform_main, text=data, font=self.fontstyle, fg='black')
         self.LMatchDate.pack(side=TOP)
 
         summary_frame = Frame(inform_main)
-        summary_frame.pack(side=TOP)
+        summary_frame.pack(side=TOP, fill=X)
 
         # 어웨이팀 출력
 
         away_frame = Frame(summary_frame)
-        away_frame.pack(side=LEFT)
+        away_frame.pack(side=LEFT, anchor=W)
 
-        self.away_team_image = None
+        self.LAwayScore = Label(away_frame, text='', font=self.fontScore, fg='black')
+        self.LAwayScore.pack(side=RIGHT, padx=100)
 
-        self.LAwayTeamImage = Label(away_frame, image=self.away_team_image, height=40, width=40)
+        self.LAwayTeamImage = Label(away_frame, height=40, width=40)
         self.LAwayTeamImage.pack()
 
-        self.LAwayTeamName = Label(away_frame, text='', font=self.fontstyle, fg='cyan')
+        self.LAwayTeamName = Label(away_frame, text='', font=self.fontstyle, fg='black')  # cyan
         self.LAwayTeamName.pack()
 
         # 홈 팀 출력
 
         home_frame = Frame(summary_frame)
-        home_frame.pack(side=RIGHT)
+        home_frame.pack(side=RIGHT, anchor=E)
 
-        self.home_team_image = None
+        self.LHomeScore = Label(home_frame, text='', font=self.fontScore, fg='black')
+        self.LHomeScore.pack(side=LEFT, padx=100)
 
-        self.LHomeTeamImage = Label(home_frame, image=self.home_team_image, height=40, width=40)
+        self.LHomeTeamImage = Label(home_frame, height=40, width=40)
         self.LHomeTeamImage.pack(side=TOP)
 
-        self.LHomeTeamName = Label(home_frame, text='', font=self.fontstyle, fg='magenta')
+        self.LHomeTeamName = Label(home_frame, text='', font=self.fontstyle, fg='black')  # magenta
         self.LHomeTeamName.pack(side=TOP)
 
+
+
+        # Versus 출력
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
-        self.LVersus.pack(side=LEFT)
+        self.LVersus.pack(anchor=S)
 
+        # 경기 결과 출력
+        scoreboard_frame = Frame(inform_main)
+        scoreboard_frame.pack(side=TOP)
+        self.indexboard = ['TEAM', '', '', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
+                           'R', 'H', 'E', 'B']
+        self.scoreboard = [[] for _ in range(3)]  # 경기 출력할 결과 저장  [[idx][away_team][home_team]]
+        self.LScoreboard = [[] for _ in range(3)]  # [[idx][away_team][home_team]]
+        for row in range(3):
+            for col in range(21):
+                label = Label(scoreboard_frame, text='', font=self.fontstyle3, fg='black')
+                label.grid(row=row, column=col, padx=(5, 0), sticky='EW')
+                self.LScoreboard[row].append(label)
 
-        pass
+        # 경기 결과를 그래프로 출력
+        graph_frame = Frame(inform_main)
+        graph_frame.pack(side=TOP)
+
+        self.canvas = Canvas(graph_frame, width=600, height=300, bg='white')
+        self.canvas.pack()
 
     def __init__(self, frame):
-        # 폰트 생성
-        self.fontstyle = font.Font(frame, size=24, weight='bold', family='Consolas')
-        self.fontstyle2 = font.Font(frame, size=16, weight='bold', family='Consolas')
+        self.frame = Frame(frame)
+        self.frame.pack(side=LEFT)
 
-        self.createMatchList(frame)
-        self.createMatchInform(frame)
+        # 폰트 생성
+        self.fontstyle = font.Font(self.frame, size=24, weight='bold', family='Consolas')
+        self.fontstyle2 = font.Font(self.frame, size=16, weight='bold', family='Consolas')
+        self.fontstyle3 = font.Font(self.frame, size=13, weight='bold', family='Consolas')
+        self.fontScore = font.Font(self.frame, size=30, weight='bold', family='Consolas')
+
+        self.createMatchList(self.frame)
+        self.createMatchInform(self.frame)
+        self.updateScoreBoard()
 
     def readScoreBoard(self, selectgame):
         scoreboardURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll'
@@ -228,7 +270,6 @@ class Match:
             'seasonId': selectgame['SEASON_ID'],
             'gameId': selectgame['G_ID']
         }
-        self.scoreboard = []
 
         res = requests.post(scoreboardURL, data=scoreboardData)
         res.encoding = 'utf-8'
@@ -239,7 +280,16 @@ class Match:
 
         # print(res.status_code)
         # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        # print(pretty_json)
+        # print("읽어온 순수 데이터 : ", pretty_json)
+        status = res.json()['code']
+        if status != '100':
+            if status == '200':
+                print("해당 경기가 종료되지 않았음")
+                self.resetScoreBoard()
+                return
+            else:
+                print("error code =", res.json()['code'])
+                return
 
         table1 = res.json()['table1'].replace('\r\n', '')
         table2 = res.json()['table2'].replace('\r\n', '')
@@ -276,13 +326,15 @@ class Match:
         # print(dict1)
         # print(dict3)
         # print(dict2)
-        pretty_json = json.dumps(dict2, indent=4, ensure_ascii=False)
-        print(pretty_json)
+        # pretty_json = json.dumps(dict1, indent=4, ensure_ascii=False)
+        # print(pretty_json)
+
+        index_score1 = []
 
         away_score1 = []
         home_score1 = []
-        away_score1.append(selectgame['G_DT'])  # 경기 일자
-        away_score1.append(selectgame['SEASON_ID'])  # 시즌
+        # away_score1.append(selectgame['G_DT'])  # 경기 일자
+        # away_score1.append(selectgame['SEASON_ID'])  # 시즌
 
         away_score1.append(selectgame['AWAY_NM'])  # 원정팀 이름
         a = dict1['rows'][0]['row'][1]['Text'].split('>')[3]
@@ -290,8 +342,8 @@ class Match:
         b = dict1['rows'][0]['row'][0]['Text']
         away_score1.append(b)  # 원정팀 해당경기 승/패
 
-        home_score1.append(selectgame['G_DT'])
-        home_score1.append(selectgame['SEASON_ID'])
+        # home_score1.append(selectgame['G_DT'])
+        # home_score1.append(selectgame['SEASON_ID'])
         home_score1.append(selectgame['HOME_NM'])  # 홈팀 이름
 
         a = dict1['rows'][1]['row'][1]['Text'].split('>')[3]
@@ -299,10 +351,13 @@ class Match:
         b = dict1['rows'][1]['row'][0]['Text']
         home_score1.append(b)  # 홈팀 해당경기 승/패
 
+        index_score2 = []
         away_score2 = []
         home_score2 = []
 
         for i in range(0, 12):
+            idx = dict2['headers'][0]['row'][i]['Text']
+            index_score2.append(idx)
             a = dict2['rows'][0]['row'][i]['Text']
             away_score2.append(a)
             b = dict2['rows'][1]['row'][i]['Text']
@@ -315,16 +370,31 @@ class Match:
             away_score3.append(a)
             b = dict3['rows'][1]['row'][i]['Text']
             home_score3.append(b)
-        print(away_score1, '\n', away_score2, '\n', away_score3)
-        print(home_score1, '\n', home_score2, '\n', home_score3)
-
+        # print(away_score1, '\n', away_score2, '\n', away_score3)
+        # print(home_score1, '\n', home_score2, '\n', home_score3)
+        # print(index_score2)
         # score_board1 = pd.DataFrame([away_score1, home_score1], columns=['Date', 'Season', 'Team', 'Result', 'Record'])
         # score_board3 = pd.DataFrame([away_score3, home_score3], columns=['Score', 'Hit', 'Error', 'Base_on_balls'])
         # score_board = pd.concat([score_board1, score_board3], axis=1)  # 두 테이블에서 가져온 정보 합치기
         # score_board
+        self.awayboard = away_score1 + away_score2 + away_score3
+        self.homeboard = home_score1 + home_score2 + home_score3
+        self.scoreboard[0] = self.indexboard
+        self.scoreboard[1] = self.awayboard
+        self.scoreboard[2] = self.homeboard
 
+        # 화면을 갱신시킨다.
+        self.updateScoreBoard()
 
+    def resetScoreBoard(self):
+        for row in range(len(self.scoreboard)):
+            for col in range(len(self.scoreboard[row])):
+                self.LScoreboard[row][col].configure(text='')
 
+    def updateScoreBoard(self):
+        for row in range(len(self.scoreboard)):
+            for col in range(len(self.scoreboard[row])):
+                self.LScoreboard[row][col].configure(text=str(self.scoreboard[row][col]))
 
     def readBoxScore(self, selectgame):
         boxscoreURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetBoxScoreScroll'
@@ -347,11 +417,8 @@ class Match:
         # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
         # print(pretty_json)
 
-        table1 = res.json()['tableEtc'].replace('\r\n', '')
-        dict1 = json.loads(table1)
+        # table1 = res.json()['tableEtc'].replace('\r\n', '')
+        # dict1 = json.loads(table1)
+
         # pretty_json = json.dumps(dict1, indent=4, ensure_ascii=False)
         # print(pretty_json)
-
-
-
-
