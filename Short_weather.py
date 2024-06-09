@@ -6,6 +6,8 @@ import xml.dom.minidom
 from PIL import Image, ImageTk
 from io import BytesIO
 import urllib.request
+from datetime import datetime
+
 
 # 단기예보
 # - Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 (1일 8회)
@@ -17,13 +19,18 @@ import urllib.request
 
 def fetch_weather(nx, ny):
     url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+
+    # 현재 날짜를 'YYYYMMDD' 형식으로 가져오기
+    current_date = datetime.now().strftime('%Y%m%d')
+
     params = {
-        'serviceKey': '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ==', #decoding
+        'serviceKey': '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ==',
+        # decoding
         'pageNo': '1',
         'numOfRows': '10',
         'dataType': 'XML',
-        'base_date': '20240602',  # 발표 일자
-        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 s호출)
+        'base_date': current_date,  # 발표 일자
+        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 호출)
         'nx': str(nx),
         'ny': str(ny)
     }
@@ -121,7 +128,7 @@ def create_weather_frame(frame):
     stadium_listbox = Listbox(right_frame, selectmode=SINGLE, height=20)
     for stadium in stadiums:
         stadium_listbox.insert(END, stadium["name"])
-    stadium_listbox.pack(side=LEFT,pady=10)
+    stadium_listbox.pack(side=LEFT, pady=10)
 
     def show_weather():
         selected_index = stadium_listbox.curselection()
