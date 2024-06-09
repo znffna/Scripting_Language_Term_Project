@@ -8,7 +8,7 @@ from tkinter import ttk
 
 from GoogleAPI_Key import Google_API_Key
 
-zoom = 13
+zoom = 18
 
 # 경기장 데이터
 stadiums = [
@@ -38,36 +38,12 @@ for stadium in stadiums:
 
 def createStadiumFrame(frame):
     global zoom
-    zoom = 13  # 초기 줌 레벨
-
-    left_frame = tk.Frame(frame)
-    left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    list_frame = tk.Frame(left_frame)
-    list_frame.pack(fill=tk.BOTH, expand=True)
-
-    scrollbar = tk.Scrollbar(list_frame)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    stadium_list = tk.Listbox(list_frame, width=60, yscrollcommand=scrollbar.set)
-    stadium_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    scrollbar.config(command=stadium_list.yview)
-
-    # 초기 목록에 모든 경기장 추가
-    for stadium in stadiums:
-        stadium_list.insert(tk.END, stadium['name'])
-
-    right_frame = tk.Frame(frame)
-    right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    map_label = tk.Label(right_frame)
-    map_label.pack()
 
     def update_map(stadium_name):
         global zoom
         selected_stadium_info = next(stadium for stadium in stadiums if stadium['name'] == stadium_name)
         lat, lng = selected_stadium_info['lat'], selected_stadium_info['lng']
-        stadium_map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lng}&zoom={zoom}&size=400x400&maptype=roadmap"
+        stadium_map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lng}&zoom={zoom}&size=600x400&maptype=roadmap"  # size를 600x400으로 변경
 
         marker_url = f"&markers=color:red%7C{lat},{lng}"
         stadium_map_url += marker_url
@@ -101,13 +77,42 @@ def createStadiumFrame(frame):
             selected_stadium_name = stadium_list.get(selected_index)
             update_map(selected_stadium_name)
 
+    left_frame = tk.Frame(frame)
+    left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    list_frame = tk.Frame(left_frame)
+    list_frame.pack(fill=tk.BOTH, expand=True)
+
+    scrollbar = tk.Scrollbar(list_frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    stadium_list = tk.Listbox(list_frame, width=60, yscrollcommand=scrollbar.set)
+    stadium_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    scrollbar.config(command=stadium_list.yview)
+
+    # 초기 목록에 모든 경기장 추가
+    for stadium in stadiums:
+        stadium_list.insert(tk.END, stadium['name'])
+
+    right_frame = tk.Frame(frame)
+    right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    map_frame = tk.Frame(right_frame)
+    map_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    map_label = tk.Label(map_frame, width=700, height=600)  # 라벨 크기 설정
+    map_label.pack()
+
+    button_frame = tk.Frame(map_frame)
+    button_frame.pack(side=tk.TOP, pady=1)  # 지도 아래에 버튼 프레임 배치
+
+    zoom_in_button = tk.Button(button_frame, text="확대(+)", command=zoom_in)
+    zoom_in_button.pack(side=tk.LEFT, padx=50)
+
+    zoom_out_button = tk.Button(button_frame, text="축소(-)", command=zoom_out)
+    zoom_out_button.pack(side=tk.RIGHT, padx=50)
+
     stadium_list.bind("<Double-1>", on_stadium_double_click)
-
-    zoom_in_button = tk.Button(right_frame, text="확대(+)", command=zoom_in)
-    zoom_in_button.pack(side=tk.TOP)
-
-    zoom_out_button = tk.Button(right_frame, text="축소(-)", command=zoom_out)
-    zoom_out_button.pack(side=tk.TOP)
 
     # 초기 지도 설정
     update_map(stadiums[0]['name'])
