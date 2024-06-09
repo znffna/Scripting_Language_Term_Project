@@ -118,6 +118,9 @@ class Match:
 
     # 선택된 경기로 정보 갱신(self.match_list 에서 1경기를 가져와 갱신한다)
     def updateMatchInform(self, selectgame):
+
+        self.canvas.delete('graph')
+
         self.LMatchDate.configure(text=selectgame['G_DT_TXT'])
         # 어웨이 갱신
         self.away_team_image = \
@@ -221,8 +224,6 @@ class Match:
 
         self.LHomeTeamName = Label(home_frame, text='', font=self.fontstyle, fg='black')  # magenta
         self.LHomeTeamName.pack(side=TOP)
-
-
 
         # Versus 출력
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
@@ -383,6 +384,8 @@ class Match:
         self.scoreboard[1] = self.awayboard
         self.scoreboard[2] = self.homeboard
 
+        # self.onlyAwayscore = away_score2
+        # self.onlyHomescore = away_score2
         # 화면을 갱신시킨다.
         self.updateScoreBoard()
 
@@ -395,6 +398,58 @@ class Match:
         for row in range(len(self.scoreboard)):
             for col in range(len(self.scoreboard[row])):
                 self.LScoreboard[row][col].configure(text=str(self.scoreboard[row][col]))
+
+        self.canvas.delete('graph')
+        homescore = 0
+        awayscore = 0
+
+        if self.scoreboard[1]:
+            MaxScore = self.scoreboard[1][15] if float(self.scoreboard[1][15]) > float(self.scoreboard[2][15]) else \
+                self.scoreboard[2][15]
+            MaxScore = float(MaxScore)
+
+            widthPerInning = 50.0
+            heightPerScore = 250.0 / MaxScore
+
+            awaycolor = 'red' if self.scoreboard[1][2] == '승' else 'blue'
+            homecolor = 'red' if self.scoreboard[2][2] == '승' else 'blue'
+
+            for i in range(12):
+                valueIndex = i + 3
+                if self.homeboard[valueIndex] != '-':
+                    nextHomescore = homescore + int(self.homeboard[valueIndex])
+                else:
+                    nextHomescore = homescore
+
+                if self.awayboard[valueIndex] != '-':
+                    nextAwayscore = awayscore + int(self.awayboard[valueIndex])
+                else:
+                    nextAwayscore = awayscore
+                
+                # 점수를 잇는 그래프 생성
+                self.canvas.create_line(i * widthPerInning, 300 - awayscore * heightPerScore,
+                                        (i + 1) * widthPerInning,
+                                        300 - nextAwayscore * heightPerScore, tags='graph', fill=awaycolor)
+                self.canvas.create_line(i * widthPerInning, 300 - homescore * heightPerScore,
+                                        (i + 1) * widthPerInning,
+                                        300 - nextHomescore * heightPerScore, tags='graph', fill=homecolor)
+                
+                # 해당 이닝에 점찍기
+                self.canvas.create_oval((i + 1) * widthPerInning - 5,
+                                        300 - nextAwayscore * heightPerScore - 5,
+                                        (i + 1) * widthPerInning + 5,
+                                        300 - nextAwayscore * heightPerScore + 5,
+                                        tags='graph', fill=awaycolor
+                                        )
+                self.canvas.create_oval((i + 1) * widthPerInning - 5,
+                                        300 - nextHomescore * heightPerScore - 5,
+                                        (i + 1) * widthPerInning + 5,
+                                        300 - nextHomescore * heightPerScore + 5,
+                                        tags='graph', fill=homecolor
+                                        )
+                
+                awayscore = nextAwayscore
+                homescore = nextHomescore
 
     def readBoxScore(self, selectgame):
         boxscoreURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetBoxScoreScroll'
