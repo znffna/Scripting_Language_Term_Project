@@ -17,17 +17,18 @@ stadiums = [
 ]
 
 
-def send_weather_email(sender, password, recipient, subject, weather_data):
+def send_weather_email(sender, password, recipient, subject,  stadium_name, weather_data):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = recipient
 
-    text = f"날씨 정보:\n강수확률: {weather_data.get('POP', 'N/A')}\n강수형태: {weather_data.get('PTY', 'N/A')}\n습도: {weather_data.get('REH', 'N/A')}\n하늘상태: {weather_data.get('SKY', 'N/A')}"
+    text = f"경기장: {stadium_name}\n날씨 정보:\n강수확률: {weather_data.get('POP', 'N/A')}\n강수형태: {weather_data.get('PTY', 'N/A')}\n습도: {weather_data.get('REH', 'N/A')}\n하늘상태: {weather_data.get('SKY', 'N/A')}"
     html = f"""\
     <html>
       <body>
-        <p>날씨 정보:<br>
+        <p>경기장: {stadium_name}<br>
+           날씨 정보:<br>
            강수확률: {weather_data.get('POP', 'N/A')}<br>
            강수형태: {weather_data.get('PTY', 'N/A')}<br>
            습도: {weather_data.get('REH', 'N/A')}<br>
@@ -70,4 +71,4 @@ if __name__ == "__main__":
     weather_data = fetch_weather(selected_stadium['nx'], selected_stadium['ny'])
     filtered_weather_data = filter_weather_data(weather_data)
 
-    send_weather_email(sender, password, recipient, subject, filtered_weather_data)
+    send_weather_email(sender, password, recipient, subject, selected_stadium['name'], filtered_weather_data)
