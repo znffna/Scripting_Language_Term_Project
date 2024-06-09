@@ -4,6 +4,8 @@
 import sys
 import time
 import sqlite3
+
+import requests
 import telepot
 from pprint import pprint
 from urllib.request import urlopen
@@ -14,33 +16,27 @@ import traceback
 
 import  API_Keys
 
-key = 'sea100UMmw23Xycs33F1EQnumONR%2F9ElxBLzkilU9Yr1oT4TrCot8Y2p0jyuJP72x9rG9D8CN5yuEs6AS2sAiw%3D%3D'
 TOKEN = API_Keys.TelegramBot_API_Key
 MAX_MSG_LENGTH = 300
-baseurl = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?ServiceKey='+key
 bot = telepot.Bot(TOKEN)
 
-def getData(loc_param, date_param):
+def getData(date_param):
     res_list = []
-    url = baseurl+'&LAWD_CD='+loc_param+'&DEAL_YMD='+date_param
-    #print(url)
-    res_body = urlopen(url).read()
-    #print(res_body)
-    soup = BeautifulSoup(res_body, 'html.parser')
-    items = soup.findAll('item')
-    for item in items:
-        item = re.sub('<.*?>', '|', item.text)
-        parsed = item.split('|')
-        try:
-            # row = parsed[3]+'/'+parsed[6]+'/'+parsed[7]+', '+parsed[4]+' '+parsed[5]+', '+parsed[8]+'m², '+parsed[11]+'F, '+parsed[1].strip()+'만원\n'
-            row = parsed[4]+'/'+parsed[11]+'/'+parsed[12]+','+parsed[9]+' '+parsed[10]+' '+parsed[5].strip()+', '+parsed[13]+'m², '+parsed[11]+'F, '+parsed[1].strip()+'만원\n'
-        except IndexError:
+    today_data = {
+        'leId': 1,
+        'srId': '0,1,3,4,5,7,9',
+        'Date': date_param,
+    }
+    # print(today_data)
+    res = requests.post('https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList', data=today_data)
+    res.encoding = 'utf-8'
+    match_inform = []
+    for game in res.json()['game']:
+        inform_match = (str(game['AWAY_NM']) + ' vs ' + ' ' + str(game['HOME_NM']) + ' ' +
+                         str(game['G_TM']) + ' ' + str(game['S_NM']))
+        match_inform.append(inform_match)
+    return match_inform
 
-            row = item.replace('|', ',')
-
-        if row:
-            res_list.append(row.strip())
-    return res_list
 
 def sendMessage(user, msg):
     try:
@@ -59,9 +55,9 @@ def run(date_param, param='11710'):
     user_cursor.execute('SELECT * from users')
 
     for data in user_cursor.fetchall():
-        user, param = data[0], data[1]
-        print(user, date_param, param)
-        res_list = getData( param, date_param )
+        user = data[0]
+        print(user, date_param)
+        res_list = getData(date_param)
         msg = ''
         for r in res_list:
             try:
