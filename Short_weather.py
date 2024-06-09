@@ -65,6 +65,14 @@ def convert_code(category, value):
     return value
 
 
+def filter_weather_data(weather_data):
+    filtered_data = {}
+    categories = ['POP', 'PTY', 'REH', 'SKY']
+    for category in categories:
+        if category in weather_data:
+            filtered_data[category] = convert_code(category, weather_data[category])
+    return filtered_data
+
 def display_weather(frame, weather_data):
     for widget in frame.winfo_children():
         widget.destroy()
