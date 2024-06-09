@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime
 from tkinter import *
 import tkinter.ttk
@@ -11,7 +12,7 @@ from Match import Match
 import Stadium_Map
 
 from Gmail import get_email_details
-
+from Telegram_Teller import Telegram
 
 # MonthCalendar.year 로 년도를 읽을 수 있음
 # MonthCalendar.month 로 현재 선택된 달을 읽을 수 있음
@@ -79,6 +80,9 @@ class MainGUI:
         notebook.add(frame4, text='즐겨찾기 관리')
         Label(frame4, text='페이지4의 내용',
               fg='yellow', font='helvetica 48').pack()
+
+        self.telegram = Telegram()
+        threading.Thread(target=self.telegram.running, daemon=True).start()
 
         self.window.mainloop()
 
