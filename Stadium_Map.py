@@ -6,7 +6,7 @@ import io
 from PIL import Image, ImageTk
 from googlemaps import Client
 
-from GoogleAPI_Key import Google_API_Key
+from API_Keys import Google_API_Key
 
 zoom = 13
 
