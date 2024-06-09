@@ -22,20 +22,6 @@ from Match import Match
 width = 1280
 height = 720
 
-x_position = 20
-y_position = 20
-
-team_image_url = {'한화': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_HH.png',
-                  'NC': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_NC.png',
-                  '삼성': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_SS.png',
-                  '키움': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_WO.png',
-                  '두산': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_OB.png',
-                  'LG': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_LG.png',
-                  'SSG': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_SK.png',
-                  '롯데': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_LT.png',
-                  'KT': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_KT.png',
-                  'KIA': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_HT.png'}
-
 
 class MainGUI:
     def createCalendar(self, mainframe):
@@ -45,28 +31,24 @@ class MainGUI:
         # 달력을 출력하기 위한 프레임
         self.MonthCalendar = MonthCalendar.MonthCalendar(self, Calendar_frame)
 
-
     def __init__(self):
-
         # 오늘의 날짜를 불러옴
         now = datetime.now()
         MonthCalendar.year = now.year
         MonthCalendar.month = now.month
         MonthCalendar.day = now.day
 
-
         # 윈도우 생성
         window = Tk()
         window.title('국내 축구 경기 일정')
         window.configure(bg='lightblue')
-
 
         # 달력 생성
         self.createCalendar(window)
 
         # 구분선 추가
         separator_frame = Frame(window, width=5, bg='black')  # 너비(width)와 배경색(bg) 설정
-        separator_frame.pack(side=LEFT, fill='y', padx=(10, 0) )
+        separator_frame.pack(side=LEFT, fill='y', padx=(10, 0))
 
         # Notebook 생성
         세부정보 = Frame(window)
