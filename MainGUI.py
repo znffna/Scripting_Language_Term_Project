@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime
 from tkinter import *
 import tkinter.ttk
@@ -14,6 +15,10 @@ import urllib.request
 from PIL import Image, ImageTk
 import Short_weather
 from Match import Match
+
+from Telegram_Teller import *
+
+import threading
 
 # MonthCalendar.year 로 년도를 읽을 수 있음
 # MonthCalendar.month 로 현재 선택된 달을 읽을 수 있음
@@ -43,6 +48,8 @@ class MainGUI:
         window.title('국내 축구 경기 일정')
         window.configure(bg='lightblue')
 
+        self.telegram = Telegram()
+        threading.Thread(target=self.telegram.running, daemon=True).start()
         # 달력 생성
         self.createCalendar(window)
 
@@ -77,6 +84,7 @@ class MainGUI:
         Label(frame4, text='페이지4의 내용',
               fg='yellow', font='helvetica 48').pack()
         window.mainloop()
+
 
     def pressDay(self):
         # print(MonthCalendar.day, '일 선택됨')

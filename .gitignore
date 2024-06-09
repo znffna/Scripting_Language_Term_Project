@@ -161,3 +161,4 @@ cython_debug/
 API_Keys.py
 users.db
 logs.db
+API_Keys.py
