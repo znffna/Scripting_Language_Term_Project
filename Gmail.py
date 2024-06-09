@@ -2,6 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Short_weather import fetch_weather, filter_weather_data
+from tkinter import simpledialog, messagebox, Toplevel, StringVar, Label, OptionMenu, Button
 
 stadiums = [
     {"name": "서울월드컵경기장", "nx": 60, "ny": 127},
@@ -16,8 +17,7 @@ stadiums = [
     {"name": "제주월드컵경기장", "nx": 53, "ny": 38}
 ]
 
-
-def send_weather_email(sender, password, recipient, subject,  stadium_name, weather_data):
+def send_weather_email(sender, password, recipient, subject, stadium_name, weather_data):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = sender
@@ -54,21 +54,46 @@ def send_weather_email(sender, password, recipient, subject,  stadium_name, weat
     except Exception as e:
         print(f"Failed to send email: {e}")
 
+def get_email_details(root):
+    sender = simpledialog.askstring("Sender Email", "Enter your Gmail address:", parent=root)
+    if not sender:
+        return
 
-if __name__ == "__main__":
-    sender = input("Enter your Gmail address: ")
-    password = input("Enter your Gmail password: ")
-    recipient = input("Enter recipient email address: ")
+    password = simpledialog.askstring("Password", "Enter your Gmail password:", show='*', parent=root)
+    if not password:
+        return
+
+    recipient = simpledialog.askstring("Recipient Email", "Enter recipient email address:", parent=root)
+    if not recipient:
+        return
+
     subject = "Weather Information"
 
-    print("Select a stadium:")
-    for i, stadium in enumerate(stadiums):
-        print(f"{i + 1}. {stadium['name']}")
+    # Select stadium
+    stadium_window = Toplevel(root)
+    stadium_window.title("Select Stadium")
 
-    choice = int(input("Enter the number of the stadium: "))
-    selected_stadium = stadiums[choice - 1]
+    Label(stadium_window, text="Select a stadium:").pack(pady=10)
+    selected_stadium_var = StringVar(stadium_window)
+    selected_stadium_var.set(stadiums[0]['name'])
+
+    stadium_menu = OptionMenu(stadium_window, selected_stadium_var, *[stadium['name'] for stadium in stadiums])
+    stadium_menu.pack(pady=10)
+
+    submit_button = Button(stadium_window, text="Submit", command=lambda: send_email_details(sender, password, recipient, subject, selected_stadium_var, stadium_window))
+    submit_button.pack(pady=10)
+
+def send_email_details(sender, password, recipient, subject, selected_stadium_var, stadium_window):
+    selected_stadium_name = selected_stadium_var.get()
+    selected_stadium = next(stadium for stadium in stadiums if stadium['name'] == selected_stadium_name)
 
     weather_data = fetch_weather(selected_stadium['nx'], selected_stadium['ny'])
     filtered_weather_data = filter_weather_data(weather_data)
 
-    send_weather_email(sender, password, recipient, subject, selected_stadium['name'], filtered_weather_data)
+    try:
+        send_weather_email(sender, password, recipient, subject, selected_stadium_name, filtered_weather_data)
+        messagebox.showinfo("Success", "Email sent successfully!", parent=stadium_window)
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to send email: {e}", parent=stadium_window)
+
+    stadium_window.destroy()
