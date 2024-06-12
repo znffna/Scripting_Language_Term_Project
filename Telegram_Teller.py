@@ -22,6 +22,7 @@ class Telegram:
         print(user, date_param)
         res_list = Telegram_bot.getData(date_param)
         msg = ''
+        msg += str(date_param) + '\n'
         for r in res_list:
             print(str(datetime.now()).split('.')[0], r)
             if len(r + msg) + 1 > Telegram_bot.MAX_MSG_LENGTH:

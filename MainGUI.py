@@ -1,7 +1,12 @@
 import threading
+import urllib
 from datetime import datetime
+from io import BytesIO
 from tkinter import *
 import tkinter.ttk
+from tkinter import simpledialog
+
+import PIL
 
 import MonthCalendar
 
@@ -45,10 +50,10 @@ class MainGUI:
         self.window.configure(bg='lightblue')
 
         # 오늘의 날짜를 불러옴
-        now = datetime.now()
-        MonthCalendar.year = now.year
-        MonthCalendar.month = now.month
-        MonthCalendar.day = now.day
+        self.now = datetime.now()
+        MonthCalendar.year = self.now.year
+        MonthCalendar.month = self.now.month
+        MonthCalendar.day = self.now.day
 
         # 달력 생성
         self.createCalendar(self.window)
@@ -83,6 +88,7 @@ class MainGUI:
 
         self.telegram = Telegram()
         threading.Thread(target=self.telegram.running, daemon=True).start()
+        self.telegramID = ''
 
         self.window.mainloop()
 
@@ -96,6 +102,9 @@ class MainGUI:
         # 이메일 전송 버튼 추가
         self.add_email_button(Calendar_frame)
 
+        # 텔레그램 전송 버튼 추가
+        self.add_telegram_button(Calendar_frame)
+
     def add_email_button(self, parent):
         button_frame = Frame(parent, bg='lightblue')
         button_frame.pack(side=TOP, pady=20)
@@ -104,8 +113,28 @@ class MainGUI:
                               font=("Helvetica", 16), width=20, height=2)
         email_button.pack()
 
+    def add_telegram_button(self, parent):
+        button_frame = Frame(parent, bg='lightblue')
+        button_frame.pack(side=TOP, pady=20)
+
+        telegram_button = Button(button_frame, text="텔레그램 보내기",
+                                 command=self.open_telegram_dialog,
+                                 font=("Helvetica", 16), width=20, height=2)
+
+        telegram_button.pack()
+
     def open_email_dialog(self):
         get_email_details(self.window)
+
+    def open_telegram_dialog(self):
+        # self.telegramID
+        chat_id = simpledialog.askstring("텔레그램 보내기", "텔레그램 ID 입력:", initialvalue=self.telegramID,
+                                         parent=self.window)
+        if not chat_id:
+            return
+        self.telegram.replyDayMatchData(int(MonthCalendar.year * 10000 + MonthCalendar.month * 100 + MonthCalendar.day),
+                                        chat_id)
+        self.telegramID = chat_id
 
     def pressDay(self):
         self.match.readMatchData()
