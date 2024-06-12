@@ -71,6 +71,7 @@ class MonthCalendar:
                 # print(str(node['Class']) + " : " + Text)
                 node_info.append(Text)
                 # print(str(node['Class']) + " : " + str(node['Text']))
+            # print(node_info)
             self.month_match[day].append(node_info)
         # 디버그용 출력
         # for days, matches in self.month_match.items():

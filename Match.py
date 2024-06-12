@@ -44,8 +44,8 @@ class Match:
             return
 
         # print(res.status_code)
-        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        print(pretty_json)
+        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # print(pretty_json)
 
         self.match_listbox.delete(0, END)
 
@@ -92,10 +92,10 @@ class Match:
             # print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
             if game['GAME_STATE_SC'] == '3':  # 정상적으로 진행된 경기일 경우
                 inform_match = (
-                            str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + str(game['B_SCORE_CN']) +
-                            ' ' + str(game['HOME_NM']) + ' ' + str(game['G_TM']) + ' ' + str(game['S_NM']))
+                        str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + str(game['B_SCORE_CN']) +
+                        ' ' + str(game['HOME_NM']) + ' ' + str(game['G_TM']) + ' ' + str(game['S_NM']))
             else:
-                if game['CANCEL_SC_ID'] != '0':   #  [selectgame['CANCEL_SC_NM']]
+                if game['CANCEL_SC_ID'] != '0':  # [selectgame['CANCEL_SC_NM']]
                     inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
                                     str(game['G_TM']) + ' ' + str(game['CANCEL_SC_NM']))
                     pass
@@ -107,7 +107,6 @@ class Match:
             fg = 'black' if game['CANCEL_SC_ID'] == '0' else 'red'
             self.match_listbox.insert(END, inform_match)
             self.match_listbox.itemconfig(self.match_listbox.size() - 1, fg=fg)
-
 
     # 리스트에서 선택된 경기로 갱신
     def pressedSearch(self):
@@ -155,6 +154,18 @@ class Match:
 
         self.LAwayTeamName.configure(text=selectgame['AWAY_NM'])
         self.LHomeTeamName.configure(text=selectgame['HOME_NM'])
+
+        # self.MainGUI.bookmark.isBookmark(self.LAwayTeamName['text'])
+        
+        # 즐겨찾기 갱신
+        self.BAwayTeamBookmark.configure(
+            text='★' if self.MainGUI.bookmark.isBookmark(self.LAwayTeamName['text']) else '☆')
+        self.BAwayTeamBookmark.pack()
+        self.BHomeTeamBookmark.configure(
+            text='★' if self.MainGUI.bookmark.isBookmark(self.LHomeTeamName['text']) else '☆')
+        self.BHomeTeamBookmark.pack()
+
+        # print(f'{self.LAwayTeamName['text']=}')
 
         # T_SCORE_CN (어웨이팀 점수)     --------------- O
         # B_SCORE_CN (홈팀 점수)        --------------- O
@@ -240,6 +251,9 @@ class Match:
         self.LAwayTeamName = Label(away_frame, text='', font=self.fontstyle, fg='black')  # cyan
         self.LAwayTeamName.pack()
 
+        self.BAwayTeamBookmark = Button(away_frame, text='',
+                                        command=lambda: self.pressedBookmark(self.LAwayTeamName['text']))
+
         # 홈 팀 출력
 
         home_frame = Frame(summary_frame)
@@ -253,6 +267,9 @@ class Match:
 
         self.LHomeTeamName = Label(home_frame, text='', font=self.fontstyle, fg='black')  # magenta
         self.LHomeTeamName.pack(side=TOP)
+
+        self.BHomeTeamBookmark = Button(home_frame, text='',
+                                        command=lambda: self.pressedBookmark(self.LHomeTeamName['text']))
 
         # Versus 출력
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
@@ -280,7 +297,8 @@ class Match:
         self.canvas = Canvas(graph_frame, width=600, height=300, bg='#F0F0F0')
         self.canvas.pack()
 
-    def __init__(self, frame):
+    def __init__(self, mainGUI, frame):
+        self.MainGUI = mainGUI
         self.frame = Frame(frame)
         self.frame.pack(side=LEFT)
 
@@ -293,6 +311,17 @@ class Match:
         self.createMatchList(self.frame)
         self.createMatchInform(self.frame)
         self.updateScoreBoard()
+
+    def pressedBookmark(self, target):
+        self.MainGUI.pressedBookmark(target)
+
+        # 즐겨찾기 갱신
+        self.BAwayTeamBookmark.configure(
+            text='★' if self.MainGUI.bookmark.isBookmark(self.LAwayTeamName['text']) else '☆')
+        self.BAwayTeamBookmark.pack()
+        self.BHomeTeamBookmark.configure(
+            text='★' if self.MainGUI.bookmark.isBookmark(self.LHomeTeamName['text']) else '☆')
+        self.BHomeTeamBookmark.pack()
 
     def readScoreBoard(self, selectgame):
         scoreboardURL = 'https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll'
@@ -457,7 +486,7 @@ class Match:
                     nextAwayscore = awayscore + int(self.awayboard[valueIndex])
                 else:
                     nextAwayscore = awayscore
-                
+
                 # 점수를 잇는 그래프 생성
                 self.canvas.create_line(i * widthPerInning, 300 - awayscore * heightPerScore,
                                         (i + 1) * widthPerInning,
@@ -465,7 +494,7 @@ class Match:
                 self.canvas.create_line(i * widthPerInning, 300 - homescore * heightPerScore,
                                         (i + 1) * widthPerInning,
                                         300 - nextHomescore * heightPerScore, tags='graph', fill=homecolor)
-                
+
                 # 해당 이닝에 점찍기
                 self.canvas.create_oval((i + 1) * widthPerInning - 5,
                                         300 - nextAwayscore * heightPerScore - 5,
@@ -479,7 +508,7 @@ class Match:
                                         300 - nextHomescore * heightPerScore + 5,
                                         tags='graph', fill=homecolor
                                         )
-                
+
                 awayscore = nextAwayscore
                 homescore = nextHomescore
 
