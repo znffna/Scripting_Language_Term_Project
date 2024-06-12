@@ -53,6 +53,7 @@ class Match:
         day = 1
         for game in res.json()['game']:
             self.match_list.append(game)
+            # print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
             # print(type(game))
             # 1. LE_ID                      X
             # 2. SR_ID                      X
@@ -84,8 +85,16 @@ class Match:
             # B1_BAT_ORDER_NO (1번 타자 번호)
             # B2_BAT_ORDER_NO (2번 타자 번호)
             # B3_BAT_ORDER_NO (3번 타자 번호)
-            inform_match = str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + \
-                           str(game['B_SCORE_CN']) + ' ' + str(game['HOME_NM'])
+            print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
+            if game['GAME_STATE_SC'] == '3':  # 정상적으로 진행된 경기일 경우
+                inform_match = (
+                            str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + str(game['B_SCORE_CN']) +
+                            ' ' + str(game['HOME_NM']) + ' ' + str(game['G_TM']) + ' ' + str(game['S_NM']))
+            else:
+                inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
+                                str(game['G_TM']) + ' ' + str(game['S_NM']))
+            # inform_match = str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + \
+            #                str(game['B_SCORE_CN']) + ' ' + str(game['HOME_NM'])
             self.match_listbox.insert(END, inform_match)  #
 
     # 리스트에서 선택된 경기로 갱신
@@ -153,6 +162,7 @@ class Match:
             self.LHomeScore.configure(fg='red')
 
         self.LVersus.configure(text="     VS     ")
+        self.LStadium.configure(text=selectgame['S_NM'])
 
         self.readScoreBoard(selectgame)
         self.readBoxScore(selectgame)
@@ -228,6 +238,8 @@ class Match:
         # Versus 출력
         self.LVersus = Label(summary_frame, text='', font=self.fontstyle, fg='black')
         self.LVersus.pack(anchor=S)
+        self.LStadium = Label(summary_frame, text='', font=self.fontstyle, fg='black')
+        self.LStadium.pack(anchor=S)
 
         # 경기 결과 출력
         scoreboard_frame = Frame(inform_main)
@@ -285,7 +297,7 @@ class Match:
         status = res.json()['code']
         if status != '100':
             if status == '200':
-                print("해당 경기가 종료되지 않았음")
+                print("해당 경기가 진행되지 않았음")
                 self.resetScoreBoard()
                 return
             else:

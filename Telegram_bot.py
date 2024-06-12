@@ -32,8 +32,13 @@ def getData(date_param):
     res.encoding = 'utf-8'
     match_inform = []
     for game in res.json()['game']:
-        inform_match = (str(game['AWAY_NM']) + ' vs ' + ' ' + str(game['HOME_NM']) + ' ' +
-                         str(game['G_TM']) + ' ' + str(game['S_NM']))
+        print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
+        if game['GAME_STATE_SC'] == '3':  # 정상적으로 진행된 경기일 경우
+            inform_match = (str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + str(game['B_SCORE_CN']) +
+                            ' ' + str(game['HOME_NM']) + ' ' + str(game['G_TM']) + ' ' + str(game['S_NM']))
+        else:
+            inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
+                            str(game['G_TM']) + ' ' + str(game['S_NM']))
         match_inform.append(inform_match)
     return match_inform
 
