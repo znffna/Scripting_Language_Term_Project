@@ -14,6 +14,7 @@ import MonthCalendar
 from PIL import Image, ImageTk
 import Short_weather
 from Match import Match
+from bookmark import Bookmark
 
 import Stadium_Map
 
@@ -66,7 +67,7 @@ class MainGUI:
         frame1 = Frame(세부정보)
         notebook.add(frame1, text='경기 일정')
         # 경기 일정 생성
-        self.match = Match(frame1)
+        self.match = Match(self, frame1)
 
         frame2 = Frame(세부정보)
         notebook.add(frame2, text='날씨 정보')
@@ -78,8 +79,10 @@ class MainGUI:
 
         frame4 = Frame(세부정보)
         notebook.add(frame4, text='즐겨찾기 관리')
-        Label(frame4, text='페이지4의 내용',
-              fg='yellow', font='helvetica 48').pack()
+        # Label(frame4, text='페이지4의 내용',
+        #       fg='yellow', font='helvetica 48').pack()
+        self.bookmark = Bookmark(self, frame4)
+
 
         self.telegram = Telegram()
         threading.Thread(target=self.telegram.running, daemon=True).start()
@@ -147,7 +150,8 @@ class MainGUI:
 
     def open_telegram_dialog(self):
         # self.telegramID
-        chat_id = simpledialog.askstring("텔레그램 보내기", "텔레그램 ID 입력:", initialvalue=self.telegramID,
+        title = str(self.now.year) + "년 " + str(self.now.month) + "월 " + str(self.now.day) + "일 경기일정 보내기"
+        chat_id = simpledialog.askstring(title, "텔레그램 ID 입력:", initialvalue=self.telegramID,
                                          parent=self.window)
         if not chat_id:
             return
@@ -157,6 +161,10 @@ class MainGUI:
 
     def pressDay(self):
         self.match.readMatchData()
+
+    def pressedBookmark(self, target):
+        # print('target = ', target)
+        self.bookmark.pressedBookmark(target)
 
 
 if __name__ == '__main__':
