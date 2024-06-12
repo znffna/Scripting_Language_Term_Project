@@ -86,8 +86,8 @@ def display_weather(frame, weather_data):
         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
         label.pack(anchor='w')
 
-def create_weather_frame(frame):
-    left_frame = Frame(frame, width=400, height=600)
+def create_weather_frame(parent_frame):
+    left_frame = Frame(parent_frame, width=400, height=600)
     left_frame.pack(side=LEFT, padx=20, pady=20)
 
     img_url = "https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/KBOHome/resources/images/schedule/bg_map.png"
@@ -99,7 +99,7 @@ def create_weather_frame(frame):
     img_label.image = image
     img_label.pack()
 
-    right_frame = Frame(frame, width=400, height=600)
+    right_frame = Frame(parent_frame, width=400, height=600)
     right_frame.pack(side=LEFT, pady=10)
 
     stadiums = [
@@ -122,6 +122,8 @@ def create_weather_frame(frame):
         stadium_listbox.insert(END, stadium["name"])
     stadium_listbox.pack(side=LEFT, pady=10)
 
+    air_quality_data = load_air_quality_data()
+
     def show_weather():
         selected_index = stadium_listbox.curselection()
         if selected_index:
@@ -136,31 +138,17 @@ def create_weather_frame(frame):
         if selected_index:
             selected_stadium = stadiums[selected_index[0]]
             region_name = selected_stadium["region"]
-            Air_quality.fetch_and_save_air_quality()
-            with open('air_quality_data.txt', 'r', encoding='utf-8') as file:
-                air_quality_info = file.readlines()
-
-            relevant_info = [line for line in air_quality_info if region_name in line]
+            relevant_info = air_quality_data.get(region_name, [])
             text_box.delete("1.0", END)
-            text_box.insert(END, f"Air Quality Info for {region_name}:\n" + "".join(relevant_info))
+            text_box.insert(END, f"Air Quality Info for {region_name}:\n" + "\n".join(relevant_info))
 
     search_button = Button(right_frame, text="날씨 검색", command=show_weather)
-    search_button.pack(side=LEFT, pady=10)
+    search_button.pack(side=BOTTOM, pady=10)
     air_quality_button = Button(right_frame, text="대기질 검색", command=show_air_quality)
-    air_quality_button.pack(side=LEFT, pady=10)
+    air_quality_button.pack(side=BOTTOM, pady=10)
 
     weather_info_frame = Frame(right_frame, width=400, height=400)
     weather_info_frame.pack(side=LEFT, pady=10)
     text_box = Text(right_frame, wrap=WORD)
     text_box.pack(expand=True, fill=BOTH, padx=10, pady=10)
 
-root = Tk()
-root.title("야구장 날씨 및 대기질 정보 프로그램")
-root.geometry("800x800")
-
-main_frame = Frame(root, width=800, height=800)
-main_frame.pack(expand=True, fill=BOTH)
-
-create_weather_frame(main_frame)
-
-root.mainloop()
