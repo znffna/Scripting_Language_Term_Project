@@ -1,0 +1,110 @@
+Received data:
+Region: 서울, Station: 정릉로, PM10: 46
+Region: 서울, Station: 도봉구, PM10: 38
+Region: 서울, Station: 은평구, PM10: 63
+Region: 서울, Station: 서대문구, PM10: 60
+Region: 서울, Station: 마포구, PM10: 54
+Region: 서울, Station: 신촌로, PM10: 55
+Region: 서울, Station: 강서구, PM10: 48
+Region: 서울, Station: 공항대로, PM10: 58
+Region: 서울, Station: 구로구, PM10: 64
+Region: 서울, Station: 영등포구, PM10: 44
+
+Region: 인천, Station: 신흥, PM10: 42
+Region: 인천, Station: 서해, PM10: 38
+Region: 인천, Station: 영종, PM10: 35
+Region: 인천, Station: 송림, PM10: 36
+Region: 인천, Station: 구월동, PM10: 51
+Region: 인천, Station: 숭의, PM10: 38
+Region: 인천, Station: 석바위, PM10: 39
+Region: 인천, Station: 부평역, PM10: 73
+Region: 인천, Station: 남동, PM10: 50
+Region: 인천, Station: 주안, PM10: -
+
+Region: 충북, Station: 호암동, PM10: 24
+Region: 충북, Station: 칠금동, PM10: 27
+Region: 충북, Station: 중앙탑면, PM10: 28
+Region: 충북, Station: 살미면, PM10: 21
+Region: 충북, Station: 장락동, PM10: 29
+Region: 충북, Station: 영천동, PM10: 27
+Region: 충북, Station: 청풍면, PM10: 23
+Region: 충북, Station: 오창읍, PM10: 22
+Region: 충북, Station: 산남동, PM10: 22
+Region: 충북, Station: 오송읍, PM10: 33
+
+Region: 대전, Station: 읍내동, PM10: 18
+Region: 대전, Station: 문평동, PM10: 30
+Region: 대전, Station: 문창동, PM10: 45
+Region: 대전, Station: 구성동, PM10: 29
+Region: 대전, Station: 노은동, PM10: 30
+Region: 대전, Station: 상대동(대전), PM10: 23
+Region: 대전, Station: 관평동, PM10: 26
+Region: 대전, Station: 대흥동1, PM10: 28
+Region: 대전, Station: 성남동1, PM10: 67
+Region: 대전, Station: 대성동, PM10: 23
+
+Region: 대구, Station: 남산1동, PM10: 42
+Region: 대구, Station: 수창동, PM10: 27
+Region: 대구, Station: 지산동, PM10: 30
+Region: 대구, Station: 서호동, PM10: 29
+Region: 대구, Station: 이현동, PM10: 38
+Region: 대구, Station: 평리동, PM10: 28
+Region: 대구, Station: 대명동, PM10: -
+Region: 대구, Station: 신암동, PM10: 25
+Region: 대구, Station: 태전동, PM10: 24
+Region: 대구, Station: 산격동, PM10: 34
+
+Region: 경북, Station: 청송읍, PM10: 33
+Region: 경북, Station: 우현동, PM10: 59
+Region: 경북, Station: 장흥동, PM10: 56
+Region: 경북, Station: 장량동, PM10: 73
+Region: 경북, Station: 대도동, PM10: 70
+Region: 경북, Station: 대송면, PM10: 68
+Region: 경북, Station: 3공단, PM10: 51
+Region: 경북, Station: 송도동, PM10: 71
+Region: 경북, Station: 오천읍, PM10: 65
+Region: 경북, Station: 청림동, PM10: 76
+
+Region: 울산, Station: 화산리, PM10: 87
+Region: 울산, Station: 상남리, PM10: 80
+Region: 울산, Station: 농소동, PM10: -
+Region: 울산, Station: 삼남읍, PM10: -
+Region: 울산, Station: 약사동, PM10: 36
+Region: 울산, Station: 웅촌면, PM10: 58
+Region: 울산, Station: 범서읍, PM10: 80
+Region: 울산, Station: 북부순환도로, PM10: 90
+Region: 울산, Station: 송정동, PM10: 77
+Region: 울산, Station: 전하동, PM10: 36
+
+Region: 부산, Station: 광복동, PM10: 32
+Region: 부산, Station: 초량동, PM10: 33
+Region: 부산, Station: 태종대, PM10: 24
+Region: 부산, Station: 청학동, PM10: -
+Region: 부산, Station: 전포동, PM10: 52
+Region: 부산, Station: 온천동, PM10: 64
+Region: 부산, Station: 명장동, PM10: 46
+Region: 부산, Station: 대연동, PM10: 32
+Region: 부산, Station: 용호동, PM10: 24
+Region: 부산, Station: 학장동, PM10: 62
+
+Region: 경남, Station: 북부동, PM10: 52
+Region: 경남, Station: 삼호동, PM10: 47
+Region: 경남, Station: 물금읍, PM10: 60
+Region: 경남, Station: 내일동, PM10: 55
+Region: 경남, Station: 무전동, PM10: 22
+Region: 경남, Station: 고성읍, PM10: 24
+Region: 경남, Station: 거창읍, PM10: 35
+Region: 경남, Station: 가야읍, PM10: 39
+Region: 경남, Station: 함양읍, PM10: 34
+Region: 경남, Station: 남해읍, PM10: 38
+
+Region: 광주, Station: 서석동, PM10: 33
+Region: 광주, Station: 농성동, PM10: 61
+Region: 광주, Station: 치평동, PM10: 39
+Region: 광주, Station: 노대동, PM10: 38
+Region: 광주, Station: 유촌동, PM10: 36
+Region: 광주, Station: 두암동, PM10: 32
+Region: 광주, Station: 운암동, PM10: 42
+Region: 광주, Station: 건국동, PM10: 22
+Region: 광주, Station: 일곡동, PM10: 24
+Region: 광주, Station: 오선동, PM10: 29
