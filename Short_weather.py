@@ -7,30 +7,21 @@ from PIL import Image, ImageTk
 from io import BytesIO
 import urllib.request
 from datetime import datetime
-
+import Air_quality
 
 # 단기예보
-# - Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 (1일 8회)
-# - API 제공 시간(~이후) : 02:10, 05:10, 08:10, 11:10, 14:10, 17:10, 20:10, 23:10
-# - 하늘상태(SKY) 코드 : 맑음(1), 구름많음(3), 흐림(4)
-# - 강수형태(PTY) 코드 : (초단기) 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)
-#                       (단기) 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
-
-
 def fetch_weather(nx, ny):
     url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 
-    # 현재 날짜를 'YYYYMMDD' 형식으로 가져오기
     current_date = datetime.now().strftime('%Y%m%d')
 
     params = {
         'serviceKey': '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ==',
-        # decoding
         'pageNo': '1',
         'numOfRows': '10',
         'dataType': 'XML',
-        'base_date': current_date,  # 발표 일자
-        'base_time': '0500',  # 발표 시각 (06시 발표(정시단위)-매시각 40분 이후 호출)
+        'base_date': current_date,
+        'base_time': '0500',
         'nx': str(nx),
         'ny': str(ny)
     }
@@ -41,9 +32,6 @@ def fetch_weather(nx, ny):
     xml_str = xml.dom.minidom.parseString(data)
     pretty_xml = xml_str.toprettyxml()
 
-    # print(pretty_xml)
-
-    # XML 데이터 파싱
     root = ET.fromstring(data)
     items = root.find('body').find('items').findall('item')
 
@@ -55,15 +43,12 @@ def fetch_weather(nx, ny):
 
     return weather_data
 
-
 def convert_code(category, value):
     if category == 'SKY':
         return {'1': '맑음', '3': '구름많음', '4': '흐림'}.get(value, value)
     elif category == 'PTY':
-        return {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기', '5': '빗방울', '6': '빗방울눈날림', '7': '눈날림'}.get(value,
-                                                                                                                  value)
+        return {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기', '5': '빗방울', '6': '빗방울눈날림', '7': '눈날림'}.get(value, value)
     return value
-
 
 def filter_weather_data(weather_data):
     filtered_data = {}
@@ -83,9 +68,9 @@ def display_weather(frame, weather_data):
 
     category_names = {
         'POP': '강수확률 %',
-        'PTY': '강수형태 : ',  # 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
+        'PTY': '강수형태 : ',
         'REH': '습도 %',
-        'SKY': '하늘상태 : ',  # 맑음(1), 구름많음(3), 흐림(4)
+        'SKY': '하늘상태 : ',
         'WSD': '풍속 (m/s)',
         'UUU': '풍속 (동서성분, m/s)',
         'VVV': '풍속 (남북성분, m/s)',
@@ -101,9 +86,7 @@ def display_weather(frame, weather_data):
         label = Label(frame, text=f"{category_name}: {value}", font=font_style)
         label.pack(anchor='w')
 
-
 def create_weather_frame(frame):
-    # 좌측에 지도 이미지를 표시할 프레임
     left_frame = Frame(frame, width=400, height=600)
     left_frame.pack(side=LEFT, padx=20, pady=20)
 
@@ -113,26 +96,25 @@ def create_weather_frame(frame):
     im = Image.open(BytesIO(raw_data))
     image = ImageTk.PhotoImage(im)
     img_label = Label(left_frame, image=image, height=400, width=400)
-    img_label.image = image  # 이미지가 가비지 컬렉션되지 않도록 참조 유지
+    img_label.image = image
     img_label.pack()
 
-    # 우측에 경기장 리스트와 검색 버튼을 표시할 프레임
     right_frame = Frame(frame, width=400, height=600)
     right_frame.pack(side=LEFT, pady=10)
 
     stadiums = [
-        {"name": "잠실야구장", "nx": 62, "ny": 126},
-        {"name": "고척스카이돔", "nx": 58, "ny": 125},
-        {"name": "인천SSG랜더스필드", "nx": 54, "ny": 124},
-        {"name": "수원KT위즈파크", "nx": 61, "ny": 121},
-        {"name": "청주야구장", "nx": 69, "ny": 107},
-        {"name": "한화생명이글스파크", "nx": 68, "ny": 100},
-        {"name": "대구삼성라이온즈파크", "nx": 89, "ny": 90},
-        {"name": "포항야구장", "nx": 102, "ny": 95},
-        {"name": "울산문수야구장", "nx": 101, "ny": 84},
-        {"name": "사직야구장", "nx": 98, "ny": 76},
-        {"name": "창원NC파크", "nx": 89, "ny": 77},
-        {"name": "광주기아챔피언스필드", "nx": 59, "ny": 74}
+        {"name": "잠실야구장", "nx": 62, "ny": 126, "region": "서울"},
+        {"name": "고척스카이돔", "nx": 58, "ny": 125, "region": "서울"},
+        {"name": "인천SSG랜더스필드", "nx": 54, "ny": 124, "region": "인천"},
+        {"name": "수원KT위즈파크", "nx": 61, "ny": 121, "region": "경기"},
+        {"name": "청주야구장", "nx": 69, "ny": 107, "region": "충북"},
+        {"name": "한화생명이글스파크", "nx": 68, "ny": 100, "region": "대전"},
+        {"name": "대구삼성라이온즈파크", "nx": 89, "ny": 90, "region": "대구"},
+        {"name": "포항야구장", "nx": 102, "ny": 95, "region": "경북"},
+        {"name": "울산문수야구장", "nx": 101, "ny": 84, "region": "울산"},
+        {"name": "사직야구장", "nx": 98, "ny": 76, "region": "부산"},
+        {"name": "창원NC파크", "nx": 89, "ny": 77, "region": "경남"},
+        {"name": "광주기아챔피언스필드", "nx": 59, "ny": 74, "region": "광주"}
     ]
 
     stadium_listbox = Listbox(right_frame, selectmode=SINGLE, height=20)
@@ -149,7 +131,36 @@ def create_weather_frame(frame):
             weather_data = fetch_weather(nx, ny)
             display_weather(weather_info_frame, weather_data)
 
-    search_button = Button(right_frame, text="검색", command=show_weather)
+    def show_air_quality():
+        selected_index = stadium_listbox.curselection()
+        if selected_index:
+            selected_stadium = stadiums[selected_index[0]]
+            region_name = selected_stadium["region"]
+            Air_quality.fetch_and_save_air_quality()
+            with open('air_quality_data.txt', 'r', encoding='utf-8') as file:
+                air_quality_info = file.readlines()
+
+            relevant_info = [line for line in air_quality_info if region_name in line]
+            text_box.delete("1.0", END)
+            text_box.insert(END, f"Air Quality Info for {region_name}:\n" + "".join(relevant_info))
+
+    search_button = Button(right_frame, text="날씨 검색", command=show_weather)
     search_button.pack(side=LEFT, pady=10)
+    air_quality_button = Button(right_frame, text="대기질 검색", command=show_air_quality)
+    air_quality_button.pack(side=LEFT, pady=10)
+
     weather_info_frame = Frame(right_frame, width=400, height=400)
     weather_info_frame.pack(side=LEFT, pady=10)
+    text_box = Text(right_frame, wrap=WORD)
+    text_box.pack(expand=True, fill=BOTH, padx=10, pady=10)
+
+root = Tk()
+root.title("야구장 날씨 및 대기질 정보 프로그램")
+root.geometry("800x800")
+
+main_frame = Frame(root, width=800, height=800)
+main_frame.pack(expand=True, fill=BOTH)
+
+create_weather_frame(main_frame)
+
+root.mainloop()

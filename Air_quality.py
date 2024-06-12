@@ -1,9 +1,7 @@
-from tkinter import *
 import requests
 import xml.etree.ElementTree as ET
 import spam  # C 확장 모듈 임포트
 
-# 야구장 정보
 stadiums_data = {
     "서울": [
         {"name": "잠실야구장", "district": "송파구"},
@@ -42,44 +40,54 @@ stadiums_data = {
 }
 
 def fetch_air_quality_by_district(district_name):
-    url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty'
+    base_url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty'
+    service_key = '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ=='
 
+    # First request to get totalCount
     params = {
-        'serviceKey': '2pyqpMvhBE5SfkdQuutIa/P6S7BUX1TeiJ5YMaimvONN633S9nHj5qccduIJHiIA+kgAg3ObxROFwxxyWhmMxQ==',
+        'serviceKey': service_key,
         'sidoName': district_name,
         'returnType': 'XML',
-        'numOfRows': '10',
+        'numOfRows': '1',
         'pageNo': '1'
     }
 
-    response = requests.get(url, params=params)
-    print(f"API Response Status Code: {response.status_code}")
+    response = requests.get(base_url, params=params)
     if response.status_code != 200:
-        print("Failed to fetch data from API")
         return None
 
     data = response.content
-    print(f"API Response Content:\n{data.decode('utf-8')}")
 
     try:
         root = ET.fromstring(data)
     except ET.ParseError as e:
-        print(f"Failed to parse XML: {e}")
         return None
 
-    items = root.find('body').find('items').findall('item')
-    print(f"Number of items found: {len(items)}")
+    total_count = int(root.find('body').find('totalCount').text)
+    print(f"Total count for {district_name}: {total_count}")
 
     air_quality_data = []
-    for item in items:
-        stationName = item.find('stationName')
-        pm10Value = item.find('pm10Value')
-        if stationName is not None and pm10Value is not None:
-            data_str = f"District: {district_name}, Station: {stationName.text}, PM10: {pm10Value.text}"
-            print(data_str)  # 디버깅 메시지
-            air_quality_data.append(data_str)
-        else:
-            print(f"Skipping item due to missing data: {ET.tostring(item, encoding='unicode')}")
+    params['numOfRows'] = '100'  # 한 페이지당 최대 항목 수로 설정
+
+    for page in range(1, (total_count // 100) + 2):  # 페이지 순회
+        params['pageNo'] = str(page)
+        response = requests.get(base_url, params=params)
+        if response.status_code != 200:
+            continue
+
+        data = response.content
+        try:
+            root = ET.fromstring(data)
+        except ET.ParseError as e:
+            continue
+
+        items = root.find('body').find('items').findall('item')
+        for item in items:
+            stationName = item.find('stationName')
+            pm10Value = item.find('pm10Value')
+            if stationName is not None and pm10Value is not None:
+                data_str = f"Station: {stationName.text}, PM10: {pm10Value.text}"
+                air_quality_data.append(data_str)
 
     air_quality_str = "\n".join(air_quality_data)
     return air_quality_str
@@ -91,13 +99,11 @@ def fetch_and_save_air_quality():
             district_name = stadium["district"]
             air_quality_str = fetch_air_quality_by_district(district_name)
             if air_quality_str:
-                all_air_quality_data.append(air_quality_str)
+                all_air_quality_data.append(f"{stadium['name']} ({district_name}):\n{air_quality_str}")
 
     complete_air_quality_str = "\n\n".join(all_air_quality_data)
-    print(f"Air quality data to be saved:\n{complete_air_quality_str}")
 
     if not complete_air_quality_str.strip():
-        print("No air quality data to save.")
         return
 
     result = spam.save_air_quality(complete_air_quality_str)
@@ -105,24 +111,3 @@ def fetch_and_save_air_quality():
         print("Data successfully saved to file.")
     else:
         print("Failed to save data to file.")
-
-def display_info():
-    fetch_and_save_air_quality()
-    with open('air_quality_data.txt', 'r', encoding='utf-8') as file:
-        air_quality_info = file.read()
-
-    text_box.delete("1.0", END)
-    text_box.insert(END, "Air Quality Info:\n" + air_quality_info)
-
-# Tkinter GUI 설정
-root = Tk()
-root.title("야구장 날씨 및 대기질 정보 프로그램")
-root.geometry("600x600")
-
-fetch_button = Button(root, text="정보 가져오기", command=display_info)
-fetch_button.pack(pady=10)
-
-text_box = Text(root, wrap=WORD)
-text_box.pack(expand=True, fill=BOTH, padx=10, pady=10)
-
-root.mainloop()
