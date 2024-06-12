@@ -121,16 +121,18 @@ def create_weather_frame(frame):
     right_frame.pack(side=LEFT, pady=10)
 
     stadiums = [
-        {"name": "서울월드컵경기장", "nx": 60, "ny": 127},
-        {"name": "부산아시아드주경기장", "nx": 98, "ny": 76},
-        {"name": "인천문학경기장", "nx": 55, "ny": 124},
-        {"name": "대구스타디움", "nx": 89, "ny": 90},
-        {"name": "광주월드컵경기장", "nx": 58, "ny": 74},
-        {"name": "대전월드컵경기장", "nx": 67, "ny": 100},
-        {"name": "수원월드컵경기장", "nx": 61, "ny": 120},
-        {"name": "울산문수축구경기장", "nx": 102, "ny": 84},
-        {"name": "포항스틸야드", "nx": 102, "ny": 94},
-        {"name": "제주월드컵경기장", "nx": 53, "ny": 38}
+        {"name": "잠실야구장", "nx": 62, "ny": 126},
+        {"name": "고척스카이돔", "nx": 58, "ny": 125},
+        {"name": "인천SSG랜더스필드", "nx": 54, "ny": 124},
+        {"name": "수원KT위즈파크", "nx": 61, "ny": 121},
+        {"name": "청주야구장", "nx": 69, "ny": 107},
+        {"name": "한화생명이글스파크", "nx": 68, "ny": 100},
+        {"name": "대구삼성라이온즈파크", "nx": 89, "ny": 90},
+        {"name": "포항야구장", "nx": 102, "ny": 95},
+        {"name": "울산문수야구장", "nx": 101, "ny": 84},
+        {"name": "사직야구장", "nx": 98, "ny": 76},
+        {"name": "창원NC파크", "nx": 89, "ny": 77},
+        {"name": "광주기아챔피언스필드", "nx": 59, "ny": 74}
     ]
 
     stadium_listbox = Listbox(right_frame, selectmode=SINGLE, height=20)
