@@ -43,8 +43,12 @@ team_image_url = {
     'KIA': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_HT.png'
 }
 
+gmailImageURL = ('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Gmail_icon_%282020%29.svg/1024px'
+                 '-Gmail_icon_%282020%29.svg.png')
 telegramImageURL = ('https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/512px-Telegram_logo'
                     '.svg.png')
+image_size = 80
+
 
 class MainGUI:
     def __init__(self):
@@ -103,41 +107,46 @@ class MainGUI:
         # 달력을 출력하기 위한 프레임
         self.MonthCalendar = MonthCalendar.MonthCalendar(self, Calendar_frame)
 
+
+        button_frame = Frame(Calendar_frame)
+        button_frame.pack(side=TOP)
         # 이메일 전송 버튼 추가
-        self.add_email_button(Calendar_frame)
+        self.add_email_button(button_frame)
 
         # 텔레그램 전송 버튼 추가
-        self.add_telegram_button(Calendar_frame)
+        self.add_telegram_button(button_frame)
 
     def add_email_button(self, parent):
-        button_frame = Frame(parent, bg='lightblue')
-        button_frame.pack(side=TOP, pady=20)
+        with urllib.request.urlopen(gmailImageURL) as u:
+            raw_data = u.read()
 
-        email_button = Button(button_frame, text="이메일 보내기", command=self.open_email_dialog,
-                              font=("Helvetica", 16), width=20, height=2)
-        email_button.pack()
+        original_image = Image.open(BytesIO(raw_data))
+        resized_image = original_image.resize((image_size, image_size))
+        image = ImageTk.PhotoImage(resized_image)
+
+        email_button = Button(parent, text="이메일 보내기", command=self.open_email_dialog, image=image,
+                              font=("Helvetica", 16), width=image_size, height=image_size)
+        email_button.image = image
+
+        email_button.pack(side=LEFT, padx=20, pady=20)
 
     def add_telegram_button(self, parent):
-        button_frame = Frame(parent, bg='lightblue')
-        button_frame.pack(side=TOP, pady=20)
-
         with urllib.request.urlopen(telegramImageURL) as u:
             raw_data = u.read()
 
         original_image = Image.open(BytesIO(raw_data))
-        resized_image = original_image.resize((40, 40))
+        resized_image = original_image.resize((image_size, image_size))
         image = ImageTk.PhotoImage(resized_image)
         # self.background = Label(self.window, image=image)
         # self.background.image = image
         # self.background.place(x=0, y=0, relwidth=1, relheight=1)
-        telegram_button = Button(button_frame, text="텔레그램 보내기",
-                                 image= image,
+        telegram_button = Button(parent, text="텔레그램 보내기",
+                                 image=image,
                                  command=self.open_telegram_dialog,
-                                 font=("Helvetica", 16), width=40, height=40)
+                                 font=("Helvetica", 16), width=image_size, height=image_size)
         telegram_button.image = image
 
-
-        telegram_button.pack()
+        telegram_button.pack(side=LEFT, padx=20, pady=20)
 
     def open_email_dialog(self):
         get_email_details(self.window)
