@@ -4,7 +4,7 @@ from datetime import datetime
 from io import BytesIO
 from tkinter import *
 import tkinter.ttk
-from tkinter import simpledialog
+from tkinter import simpledialog, font
 
 import PIL
 
@@ -29,19 +29,6 @@ height = 720
 
 x_position = 20
 y_position = 20
-
-team_image_url = {
-    '한화': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_HH.png',
-    'NC': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_NC.png',
-    '삼성': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_SS.png',
-    '키움': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_WO.png',
-    '두산': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_OB.png',
-    'LG': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_LG.png',
-    'SSG': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_SK.png',
-    '롯데': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_LT.png',
-    'KT': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_KT.png',
-    'KIA': 'https://lgcxydabfbch3774324.cdn.ntruss.com/KBO_IMAGE/emblem/regular/2024/emblem_HT.png'
-}
 
 gmailImageURL = ('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Gmail_icon_%282020%29.svg/1024px'
                  '-Gmail_icon_%282020%29.svg.png')
@@ -100,9 +87,16 @@ class MainGUI:
 
         self.window.mainloop()
 
+
     def createCalendar(self, mainframe):
         Calendar_frame = Frame(mainframe)
         Calendar_frame.pack(side=LEFT)
+
+        # 오늘 날짜를 출력하기 위한 Label
+        self.todayfont = font.Font(self.window, size=30, weight='bold', family='Consolas')
+        self.Ltoday = Label(Calendar_frame, text='Today : ' + str(self.now.year) + "년 " + str(self.now.month) + "월 " +
+                            str(self.now.day) + "일", font=self.todayfont)
+        self.Ltoday.pack(side=TOP)
 
         # 달력을 출력하기 위한 프레임
         self.MonthCalendar = MonthCalendar.MonthCalendar(self, Calendar_frame)

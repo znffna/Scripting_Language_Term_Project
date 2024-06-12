@@ -44,16 +44,20 @@ class Match:
             return
 
         # print(res.status_code)
-        # pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        # print(pretty_json)
+        pretty_json = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        print(pretty_json)
 
         self.match_listbox.delete(0, END)
+
+        data = str(MonthCalendar.year) + '년 ' + str(MonthCalendar.month) + '월 ' + str(MonthCalendar.day) + '일'
+        self.LselecedDay.configure(text=data)
 
         self.match_list = []
         day = 1
         for game in res.json()['game']:
             self.match_list.append(game)
             # print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
+            # print('CANCEL_SC_ID = ', game['CANCEL_SC_ID'])
             # print(type(game))
             # 1. LE_ID                      X
             # 2. SR_ID                      X
@@ -85,17 +89,25 @@ class Match:
             # B1_BAT_ORDER_NO (1번 타자 번호)
             # B2_BAT_ORDER_NO (2번 타자 번호)
             # B3_BAT_ORDER_NO (3번 타자 번호)
-            print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
+            # print('GAME_STATE_SC = ', game['GAME_STATE_SC'])
             if game['GAME_STATE_SC'] == '3':  # 정상적으로 진행된 경기일 경우
                 inform_match = (
                             str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + str(game['B_SCORE_CN']) +
                             ' ' + str(game['HOME_NM']) + ' ' + str(game['G_TM']) + ' ' + str(game['S_NM']))
             else:
-                inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
-                                str(game['G_TM']) + ' ' + str(game['S_NM']))
+                if game['CANCEL_SC_ID'] != '0':   #  [selectgame['CANCEL_SC_NM']]
+                    inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
+                                    str(game['G_TM']) + ' ' + str(game['CANCEL_SC_NM']))
+                    pass
+                else:
+                    inform_match = (str(game['AWAY_NM']) + ' vs ' + str(game['HOME_NM']) + ' ' +
+                                    str(game['G_TM']) + ' ' + str(game['S_NM']))
             # inform_match = str(game['AWAY_NM']) + ' ' + str(game['T_SCORE_CN']) + ' vs ' + \
             #                str(game['B_SCORE_CN']) + ' ' + str(game['HOME_NM'])
-            self.match_listbox.insert(END, inform_match)  #
+            fg = 'black' if game['CANCEL_SC_ID'] == '0' else 'red'
+            self.match_listbox.insert(END, inform_match)
+            self.match_listbox.itemconfig(self.match_listbox.size() - 1, fg=fg)
+
 
     # 리스트에서 선택된 경기로 갱신
     def pressedSearch(self):
@@ -162,7 +174,10 @@ class Match:
             self.LHomeScore.configure(fg='red')
 
         self.LVersus.configure(text="     VS     ")
-        self.LStadium.configure(text=selectgame['S_NM'])
+        if selectgame['CANCEL_SC_ID'] == '1':
+            self.LStadium.configure(text=selectgame['CANCEL_SC_NM'])
+        else:
+            self.LStadium.configure(text=selectgame['S_NM'])
 
         self.readScoreBoard(selectgame)
         self.readBoxScore(selectgame)
@@ -171,6 +186,10 @@ class Match:
     def createMatchList(self, frame):
         list_frame = Frame(frame)
         list_frame.pack(side=LEFT)
+
+        data = str(MonthCalendar.year) + '년 ' + str(MonthCalendar.month) + '월 ' + str(MonthCalendar.day) + '일'
+        self.LselecedDay = Label(list_frame, text=data, font=self.fontstyle, fg='black')
+        self.LselecedDay.pack(side=TOP)
 
         listbox_frame = Frame(list_frame)
         listbox_frame.pack(side=TOP)
@@ -200,8 +219,8 @@ class Match:
         inform_main = Frame(frame)
         inform_main.pack(side=LEFT, expand=True, fill=BOTH)
 
-        data = str(MonthCalendar.year) + '년 ' + str(MonthCalendar.month) + '월 ' + str(MonthCalendar.day) + '일'
-        self.LMatchDate = Label(inform_main, text=data, font=self.fontstyle, fg='black')
+        # data = str(MonthCalendar.year) + '년 ' + str(MonthCalendar.month) + '월 ' + str(MonthCalendar.day) + '일'
+        self.LMatchDate = Label(inform_main, text='', font=self.fontstyle, fg='black')
         self.LMatchDate.pack(side=TOP)
 
         summary_frame = Frame(inform_main)
@@ -258,7 +277,7 @@ class Match:
         graph_frame = Frame(inform_main)
         graph_frame.pack(side=TOP)
 
-        self.canvas = Canvas(graph_frame, width=600, height=300, bg='white')
+        self.canvas = Canvas(graph_frame, width=600, height=300, bg='#F0F0F0')
         self.canvas.pack()
 
     def __init__(self, frame):
@@ -426,6 +445,7 @@ class Match:
             awaycolor = 'red' if self.scoreboard[1][2] == '승' else 'blue'
             homecolor = 'red' if self.scoreboard[2][2] == '승' else 'blue'
 
+            self.canvas.create_line(0, 2, 600, 2, tags='graph', fill='black')
             for i in range(12):
                 valueIndex = i + 3
                 if self.homeboard[valueIndex] != '-':
